@@ -1,0 +1,11 @@
+amasty_amrules_rule:apply_discount_to
+amasty_amrules_rule:eachm
+amasty_amrules_rule:entity_id
+amasty_amrules_rule:max_discount
+amasty_amrules_rule:nqty
+amasty_amrules_rule:priceselector
+amasty_amrules_rule:promo_cats
+amasty_amrules_rule:promo_skus
+amasty_amrules_rule:salesrule_id
+amasty_amrules_rule:skip_rule
+amasty_amrules_rule:use_for

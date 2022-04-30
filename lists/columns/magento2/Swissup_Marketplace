@@ -1,0 +1,12 @@
+swissup_marketplace_job:arguments_serialized
+swissup_marketplace_job:attempts
+swissup_marketplace_job:class
+swissup_marketplace_job:created_at
+swissup_marketplace_job:cron_schedule_id
+swissup_marketplace_job:finished_at
+swissup_marketplace_job:job_id
+swissup_marketplace_job:output
+swissup_marketplace_job:scheduled_at
+swissup_marketplace_job:started_at
+swissup_marketplace_job:status
+swissup_marketplace_job:visibility

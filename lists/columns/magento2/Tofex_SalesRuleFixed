@@ -1,0 +1,4 @@
+salesrule_pricelist:entity_id
+salesrule_pricelist:rule_id
+salesrule_pricelist:sku
+salesrule_pricelist:value

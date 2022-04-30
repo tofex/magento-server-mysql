@@ -1,0 +1,5 @@
+klarna_kco_quote:is_active
+klarna_kco_quote:is_changed
+klarna_kco_quote:kco_quote_id
+klarna_kco_quote:klarna_checkout_id
+klarna_kco_quote:quote_id

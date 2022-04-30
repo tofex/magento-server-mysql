@@ -1,0 +1,7 @@
+quote_shipping_rate:applied_rules
+quote_shipping_rate:coupon_code
+sales_creditmemo:shipping_applied_rules
+sales_invoice:shipping_applied_rules
+sales_order:shipping_applied_rules
+salesrule:is_shipping_rule
+salesrule:shipping_method_code

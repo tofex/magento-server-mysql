@@ -1,0 +1,4 @@
+xtento_orderexport_destination:dev
+xtento_orderexport_log:live
+xtento_orderexport_profile:dev
+xtento_orderexport_profile_history:dev

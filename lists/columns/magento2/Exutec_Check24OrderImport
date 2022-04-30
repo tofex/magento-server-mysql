@@ -1,0 +1,11 @@
+check24_orders:check24_order_id
+check24_orders:content
+check24_orders:created_at
+check24_orders:error
+check24_orders:error_message
+check24_orders:filename
+check24_orders:id
+check24_orders:magento_order_id
+check24_orders:magento_order_increment_id
+check24_orders:processed
+check24_orders:updated_at

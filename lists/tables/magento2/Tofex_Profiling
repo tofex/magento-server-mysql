@@ -1,0 +1,4 @@
+profiling_alarm:live
+profiling_alarm_log:live
+profiling_report:live
+profiling_xdebug_function:live

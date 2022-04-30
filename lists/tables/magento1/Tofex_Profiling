@@ -1,0 +1,5 @@
+profiling_alarm:live
+profiling_alarm_log:live
+profiling_report:live
+profiling_url_rewrite:live
+profiling_xdebug_function:live

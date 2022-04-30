@@ -1,0 +1,17 @@
+attribute_usage_global:attribute_code
+attribute_usage_global:attribute_id
+attribute_usage_global:created_at
+attribute_usage_global:entity_type_id
+attribute_usage_global:frontend_label
+attribute_usage_global:id
+attribute_usage_global:updated_at
+attribute_usage_global:value_count
+attribute_usage_store:attribute_code
+attribute_usage_store:attribute_id
+attribute_usage_store:created_at
+attribute_usage_store:entity_type_id
+attribute_usage_store:frontend_label
+attribute_usage_store:id
+attribute_usage_store:store_id
+attribute_usage_store:updated_at
+attribute_usage_store:value_count

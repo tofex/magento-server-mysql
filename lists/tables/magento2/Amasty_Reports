@@ -1,0 +1,9 @@
+amasty_reports_abandoned_cart:test
+amasty_reports_customers_customers_daily:test
+amasty_reports_customers_customers_monthly:test
+amasty_reports_customers_customers_weekly:test
+amasty_reports_customers_customers_yearly:test
+amasty_reports_product_rule_cl:live
+amasty_reports_rule:test
+amasty_reports_rule_index:test
+amasty_reports_rule_product_cl:live

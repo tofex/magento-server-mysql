@@ -1,0 +1,14 @@
+ecx_catalog_brand:avatar
+ecx_catalog_brand:brand_id
+ecx_catalog_brand:created_at
+ecx_catalog_brand:is_active
+ecx_catalog_brand:is_top_brand
+ecx_catalog_brand:meta_description
+ecx_catalog_brand:meta_title
+ecx_catalog_brand:name
+ecx_catalog_brand:parent_brand
+ecx_catalog_brand:product_attribute_value
+ecx_catalog_brand:updated_at
+ecx_catalog_brand:url_key
+ecx_catalog_brand_store:brand_id
+ecx_catalog_brand_store:store_id

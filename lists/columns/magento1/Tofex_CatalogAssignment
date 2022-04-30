@@ -1,0 +1,11 @@
+catalog_assignment_condition:attribute_code
+catalog_assignment_condition:id
+catalog_assignment_condition:operator
+catalog_assignment_condition:rule_id
+catalog_assignment_condition:value
+catalog_assignment_rule:active
+catalog_assignment_rule:category_id
+catalog_assignment_rule:created_at
+catalog_assignment_rule:id
+catalog_assignment_rule:name
+catalog_assignment_rule:updated_at

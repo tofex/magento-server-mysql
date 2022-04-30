@@ -1,0 +1,8 @@
+sales_order:ax_credit
+sales_order:ax_delivery
+sales_order:ax_invoice
+sales_order:ax_tracking
+sales_order_grid:ax_credit
+sales_order_grid:ax_delivery
+sales_order_grid:ax_invoice
+sales_order_grid:ax_tracking

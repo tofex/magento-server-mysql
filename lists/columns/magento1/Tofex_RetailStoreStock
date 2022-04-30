@@ -1,0 +1,6 @@
+cataloginventory_stock_item:online_qty
+cataloginventory_stock_item:retail_store_qty
+retail_store_stock_item:item_id
+retail_store_stock_item:product_id
+retail_store_stock_item:qty
+retail_store_stock_item:retail_store_id

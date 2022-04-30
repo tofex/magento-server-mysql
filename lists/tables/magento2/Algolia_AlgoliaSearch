@@ -1,0 +1,12 @@
+algolia_additional_sections_cl:live
+algolia_categories_cl:live
+algolia_delete_products_cl:live
+algolia_pages_cl:live
+algolia_products_cl:live
+algolia_queue_runner_cl:live
+algolia_suggestions_cl:live
+algoliasearch_landing_page:dev
+algoliasearch_query:dev
+algoliasearch_queue:live
+algoliasearch_queue_archive:live
+algoliasearch_queue_log:live

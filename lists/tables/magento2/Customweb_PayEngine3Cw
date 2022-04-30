@@ -1,0 +1,6 @@
+customweb_payengine3cw_customer_context:test
+customweb_payengine3cw_external_checkout_context:test
+customweb_payengine3cw_storage:dev
+customweb_payengine3cw_transaction:test
+customweb_payengine3cw_transaction_grid:test
+sequence_cpe3cw_trx_*:test

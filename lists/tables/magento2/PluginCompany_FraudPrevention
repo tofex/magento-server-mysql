@@ -1,0 +1,4 @@
+plugincompany_fraudprevention_rule:dev
+plugincompany_fraudprevention_rule_store:dev
+plugincompany_fraudprevention_suspicion:test
+plugincompany_fraudprevention_suspicion_store:test

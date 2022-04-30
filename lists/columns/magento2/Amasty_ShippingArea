@@ -1,0 +1,15 @@
+amasty_shipping_area:address_condition
+amasty_shipping_area:address_set
+amasty_shipping_area:area_id
+amasty_shipping_area:city_condition
+amasty_shipping_area:city_set
+amasty_shipping_area:country_condition
+amasty_shipping_area:country_set
+amasty_shipping_area:description
+amasty_shipping_area:is_enabled
+amasty_shipping_area:name
+amasty_shipping_area:postcode_condition
+amasty_shipping_area:postcode_set
+amasty_shipping_area:state_condition
+amasty_shipping_area:state_set
+amasty_shipping_area:state_set_listing

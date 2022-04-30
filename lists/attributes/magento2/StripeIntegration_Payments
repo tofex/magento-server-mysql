@@ -1,0 +1,5 @@
+catalog_product:stripe_sub_enabled
+catalog_product:stripe_sub_initial_fee
+catalog_product:stripe_sub_interval
+catalog_product:stripe_sub_interval_count
+catalog_product:stripe_sub_trial

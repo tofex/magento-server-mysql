@@ -1,0 +1,6 @@
+payone_checked_addresses:dev
+payone_payment_ban:test
+payone_protocol_api:test
+payone_protocol_transactionstatus:test
+payone_ratepay_profile_config:dev
+payone_saved_payment_data:test

@@ -1,0 +1,4 @@
+bss_multiwishlist:customer_id
+bss_multiwishlist:multi_wishlist_id
+bss_multiwishlist:wishlist_name
+wishlist_item:multi_wishlist_id

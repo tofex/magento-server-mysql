@@ -1,0 +1,13 @@
+chronopay_api_debug:live
+cybermut_api_debug:live
+eway_api_debug:live
+flo2cash_api_debug:live
+googleshopping_attributes:dev
+googleshopping_items:dev
+googleshopping_types:dev
+ideal_api_debug:live
+paybox_api_debug:live
+paybox_question_number:test
+protx_api_debug:live
+social_facebook_actions:dev
+strikeiron_tax_rate:dev

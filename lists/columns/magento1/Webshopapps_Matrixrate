@@ -1,0 +1,13 @@
+shipping_matrixrate:condition_from_value
+shipping_matrixrate:condition_name
+shipping_matrixrate:condition_to_value
+shipping_matrixrate:cost
+shipping_matrixrate:delivery_type
+shipping_matrixrate:dest_city
+shipping_matrixrate:dest_country_id
+shipping_matrixrate:dest_region_id
+shipping_matrixrate:dest_zip
+shipping_matrixrate:dest_zip_to
+shipping_matrixrate:pk
+shipping_matrixrate:price
+shipping_matrixrate:website_id

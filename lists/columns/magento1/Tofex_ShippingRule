@@ -1,0 +1,7 @@
+sales_flat_creditmemo:shipping_applied_rules
+sales_flat_invoice:shipping_applied_rules
+sales_flat_order:shipping_applied_rules
+sales_flat_quote_shipping_rate:applied_rules
+sales_flat_quote_shipping_rate:coupon_code
+salesrule:is_shipping_rule
+salesrule:shipping_method_code

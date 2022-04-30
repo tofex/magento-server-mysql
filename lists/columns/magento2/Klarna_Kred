@@ -1,0 +1,5 @@
+klarna_kco_push_queue:creation_time
+klarna_kco_push_queue:count
+klarna_kco_push_queue:klarna_checkout_id
+klarna_kco_push_queue:push_queue_id
+klarna_kco_push_queue:update_time

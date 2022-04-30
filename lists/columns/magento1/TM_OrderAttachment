@@ -1,0 +1,6 @@
+tm_orderattachment:attachment_id
+tm_orderattachment:comment
+tm_orderattachment:hash
+tm_orderattachment:order_id
+tm_orderattachment:path
+tm_orderattachment:quote_id

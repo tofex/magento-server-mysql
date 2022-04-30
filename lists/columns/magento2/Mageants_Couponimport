@@ -1,0 +1,9 @@
+coupon_usage_report:coupon
+coupon_usage_report:grand_total
+coupon_usage_report:order_id
+coupon_usage_report:order_ref_id
+coupon_usage_report:order_status
+coupon_usage_report:purchased_date
+coupon_usage_report:report_id
+coupon_usage_report:rule_name
+coupon_usage_report:track_number

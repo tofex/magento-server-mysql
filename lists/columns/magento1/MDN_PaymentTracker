@@ -1,0 +1,7 @@
+payment_tracker_payment:ptp_amount
+payment_tracker_payment:ptp_comments
+payment_tracker_payment:ptp_date
+payment_tracker_payment:ptp_id
+payment_tracker_payment:ptp_is_money_back
+payment_tracker_payment:ptp_method
+payment_tracker_payment:ptp_order_id

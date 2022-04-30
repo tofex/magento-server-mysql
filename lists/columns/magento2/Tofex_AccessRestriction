@@ -1,0 +1,11 @@
+access_restriction:action_name
+access_restriction:active
+access_restriction:all
+access_restriction:created_at
+access_restriction:customer_group_ids
+access_restriction:id
+access_restriction:logged_in
+access_restriction:request_path
+access_restriction:type
+access_restriction:updated_at
+access_restriction:website_id

@@ -1,0 +1,6 @@
+elasticsearch_attribute_filters:dev
+elasticsearch_boosting_factors:dev
+elasticsearch_changelog_indexer:dev
+elasticsearch_search_replacements:dev
+elasticsearch_search_terms:dev
+elasticsearch_terms_products:dev

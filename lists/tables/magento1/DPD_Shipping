@@ -1,0 +1,4 @@
+dpd_shipping_dpdclassic_tablerate:dev
+dpd_shipping_dpdparcelshops_tablerate:dev
+dpd_shipping_returnlabels:test
+dpd_shipping_specialparcelshops:dev

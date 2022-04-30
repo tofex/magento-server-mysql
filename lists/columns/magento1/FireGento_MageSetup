@@ -1,0 +1,9 @@
+catalog_eav_attribute:is_visible_on_checkout
+checkout_agreement:agreement_type
+checkout_agreement:is_required
+checkout_agreement:revocation_product_type
+newsletter_subscriber_status:created_at
+newsletter_subscriber_status:email
+newsletter_subscriber_status:id
+newsletter_subscriber_status:status
+newsletter_subscriber_status:subscriber

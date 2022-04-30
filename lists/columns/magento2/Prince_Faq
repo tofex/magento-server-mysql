@@ -1,0 +1,15 @@
+prince_faq:content
+prince_faq:customer_group
+prince_faq:faq_id
+prince_faq:group
+prince_faq:sortorder
+prince_faq:status
+prince_faq:storeview
+prince_faq:title
+prince_faqgroup:customer_group
+prince_faqgroup:faqgroup_id
+prince_faqgroup:groupname
+prince_faqgroup:icon
+prince_faqgroup:sortorder
+prince_faqgroup:status
+prince_faqgroup:storeview

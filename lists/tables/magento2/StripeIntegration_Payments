@@ -1,0 +1,8 @@
+stripe_checkout_sessions:live
+stripe_coupons:dev
+stripe_customers:test
+stripe_invoices:test
+stripe_payment_intents:test
+stripe_sources:test
+stripe_subscriptions:test
+stripe_webhooks:dev

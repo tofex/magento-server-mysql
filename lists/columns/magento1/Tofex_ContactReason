@@ -1,0 +1,6 @@
+contact_reason:id
+contact_reason:name
+contact_reason:otrs_id
+contact_reason:receiver
+contact_reason:store_id
+contact_reason:template_id

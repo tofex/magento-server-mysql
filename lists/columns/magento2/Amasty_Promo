@@ -1,0 +1,10 @@
+amasty_ampromo_rule:after_product_banner_show_gift_images
+amasty_ampromo_rule:apply_shipping
+amasty_ampromo_rule:apply_tax
+amasty_ampromo_rule:entity_id
+amasty_ampromo_rule:items_discount
+amasty_ampromo_rule:minimal_items_price
+amasty_ampromo_rule:salesrule_id
+amasty_ampromo_rule:sku
+amasty_ampromo_rule:top_banner_show_gift_images
+amasty_ampromo_rule:type

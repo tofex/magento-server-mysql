@@ -1,0 +1,5 @@
+customer_group:website_ids
+customer_group_label:customer_group_id
+customer_group_label:label
+customer_group_label:label_id
+customer_group_label:store_id

@@ -1,0 +1,10 @@
+cron_schedule:eta
+cron_schedule:host
+cron_schedule:kill_request
+cron_schedule:last_seen
+cron_schedule:memory_usage
+cron_schedule:parameters
+cron_schedule:pid
+cron_schedule:progress_message
+cron_schedule:scheduled_by
+cron_schedule:scheduled_reason

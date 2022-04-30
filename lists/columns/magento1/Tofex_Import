@@ -1,0 +1,15 @@
+catalog_product_entity_media_gallery:hash
+import_source_cache:cache_id
+import_source_cache:created_at
+import_source_cache:data_hash
+import_source_cache:expires_at
+import_source_cache:hash_key
+import_source_cache:prefix
+import_source_cache:updated_at
+import_transformed_cache:cache_id
+import_transformed_cache:created_at
+import_transformed_cache:data_hash
+import_transformed_cache:expires_at
+import_transformed_cache:hash_key
+import_transformed_cache:prefix
+import_transformed_cache:updated_at

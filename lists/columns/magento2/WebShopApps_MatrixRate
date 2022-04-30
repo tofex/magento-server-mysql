@@ -1,0 +1,13 @@
+webshopapps_matrixrate:condition_from_value
+webshopapps_matrixrate:condition_name
+webshopapps_matrixrate:condition_to_value
+webshopapps_matrixrate:cost
+webshopapps_matrixrate:dest_city
+webshopapps_matrixrate:dest_country_id
+webshopapps_matrixrate:dest_region_id
+webshopapps_matrixrate:dest_zip
+webshopapps_matrixrate:dest_zip_to
+webshopapps_matrixrate:pk
+webshopapps_matrixrate:price
+webshopapps_matrixrate:shipping_method
+webshopapps_matrixrate:website_id

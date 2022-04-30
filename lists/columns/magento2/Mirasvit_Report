@@ -1,0 +1,9 @@
+mst_report_email:blocks_serialized
+mst_report_email:email_id
+mst_report_email:is_active
+mst_report_email:is_attach_enabled
+mst_report_email:last_sent_at
+mst_report_email:recipient
+mst_report_email:schedule
+mst_report_email:subject
+mst_report_email:title

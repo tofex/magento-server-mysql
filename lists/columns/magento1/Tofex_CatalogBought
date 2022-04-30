@@ -1,0 +1,4 @@
+catalog_product_bought:bought_entity_ids
+catalog_product_bought:bought_id
+catalog_product_bought:entity_id
+catalog_product_bought:store_id

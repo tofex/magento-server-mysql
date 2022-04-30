@@ -1,0 +1,6 @@
+cyberday_itrk_api_log:ip
+cyberday_itrk_api_log:log_id
+cyberday_itrk_api_log:request
+cyberday_itrk_api_log:request_timestamp
+cyberday_itrk_api_log:response
+cyberday_itrk_api_log:runtime

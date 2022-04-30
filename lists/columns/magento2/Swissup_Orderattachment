@@ -1,0 +1,9 @@
+swissup_orderattachment:attachment_id
+swissup_orderattachment:comment
+swissup_orderattachment:hash
+swissup_orderattachment:modified_at
+swissup_orderattachment:order_id
+swissup_orderattachment:path
+swissup_orderattachment:quote_id
+swissup_orderattachment:type
+swissup_orderattachment:uploaded_at

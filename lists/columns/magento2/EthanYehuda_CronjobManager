@@ -1,0 +1,5 @@
+cron_schedule:duration
+cron_schedule:group
+cron_schedule:hostname
+cron_schedule:kill_request
+cron_schedule:pid

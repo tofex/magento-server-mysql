@@ -1,0 +1,9 @@
+aw_osc_checkout_data_completeness:test
+aw_osc_report_abandoned_checkouts_index:test
+aw_osc_report_abandoned_checkouts_index_idx:test
+aw_osc_report_aggregation_by_day:test
+aw_osc_report_aggregation_by_month:test
+aw_osc_report_aggregation_by_quarter:test
+aw_osc_report_aggregation_by_week:test
+aw_osc_report_aggregation_by_year:test
+aw_osc_reports_cl:live

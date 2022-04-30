@@ -1,0 +1,5 @@
+checkout_agreement:is_autochecked
+checkout_agreement:is_optional
+checkout_agreement:is_persistent
+checkout_agreement:is_prechecked
+checkout_agreement:persistent_column_name

@@ -1,0 +1,6 @@
+mst_core_urlrewrite:entity_id
+mst_core_urlrewrite:module
+mst_core_urlrewrite:store_id
+mst_core_urlrewrite:type
+mst_core_urlrewrite:urlrewrite_id
+mst_core_urlrewrite:url_key

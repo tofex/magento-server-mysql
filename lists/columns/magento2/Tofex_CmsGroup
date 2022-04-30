@@ -1,0 +1,7 @@
+cms_block:group_id
+cms_group:created_at
+cms_group:group_id
+cms_group:name
+cms_group:system
+cms_group:updated_at
+cms_page:group_id

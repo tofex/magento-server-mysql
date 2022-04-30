@@ -1,0 +1,9 @@
+uni_fileuploader:content_disp
+uni_fileuploader:fileuploader_id
+uni_fileuploader:file_content
+uni_fileuploader:file_status
+uni_fileuploader:product_ids
+uni_fileuploader:sort_order
+uni_fileuploader:title
+uni_fileuploader:update_time
+uni_fileuploader:uploaded_file

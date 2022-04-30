@@ -1,0 +1,14 @@
+payment_condition:address_attribute_code
+payment_condition:attribute_code
+payment_condition:custom_attribute
+payment_condition:id
+payment_condition:operator
+payment_condition:rule_id
+payment_condition:value
+payment_rule:active
+payment_rule:created_at
+payment_rule:id
+payment_rule:payment_method_code
+payment_rule:type
+payment_rule:updated_at
+payment_rule:website_id

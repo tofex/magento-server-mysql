@@ -1,0 +1,8 @@
+magenest_stripe_card:test
+magenest_stripe_charge:test
+magenest_stripe_customer:test
+magenest_stripe_product_attribute:dev
+magenest_stripe_source:test
+magenest_stripe_subscription:test
+magenest_stripe_subscription_invoice:test
+magenest_stripe_subscription_item:test

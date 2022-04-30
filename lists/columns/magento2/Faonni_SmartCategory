@@ -1,0 +1,6 @@
+catalog_eav_attribute:is_used_for_smart_rules
+faonni_smartcategory_rule:conditions_serialized
+faonni_smartcategory_rule:replace_on_configurable
+faonni_smartcategory_rule:rule_id
+smartcategory_product_cl:entity_id
+smartcategory_product_cl:version_id

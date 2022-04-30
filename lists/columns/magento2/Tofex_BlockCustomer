@@ -1,0 +1,11 @@
+customer_block_criteria:city
+customer_block_criteria:criteria_id
+customer_block_criteria:email
+customer_block_criteria:firstname
+customer_block_criteria:lastname
+customer_block_criteria:paypal_payer_id
+customer_block_criteria:postcode
+customer_block_criteria:street_1
+customer_block_criteria:street_2
+sales_order:is_blocked
+sales_order:is_unblocked

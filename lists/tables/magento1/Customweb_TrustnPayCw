@@ -1,0 +1,5 @@
+trustnpaycw_alias_data:test
+trustnpaycw_customer_context:test
+trustnpaycw_external_checkout_context:test
+trustnpaycw_storage:dev
+trustnpaycw_transaction:test

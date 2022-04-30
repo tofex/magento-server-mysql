@@ -1,0 +1,8 @@
+retail_store_pac_rate:condition_from_value
+retail_store_pac_rate:condition_to_value
+retail_store_pac_rate:delivery_type
+retail_store_pac_rate:dest_country_id
+retail_store_pac_rate:pk
+retail_store_pac_rate:price
+retail_store_pac_rate:status
+retail_store_pac_rate:website_id

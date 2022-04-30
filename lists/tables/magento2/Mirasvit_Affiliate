@@ -1,0 +1,9 @@
+mst_affiliate_account:test
+mst_affiliate_account_customer:test
+mst_affiliate_banner:dev
+mst_affiliate_coupon:dev
+mst_affiliate_event:test
+mst_affiliate_group:dev
+mst_affiliate_program:dev
+mst_affiliate_transaction:test
+mst_affiliate_withdraw:dev

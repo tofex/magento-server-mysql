@@ -1,0 +1,14 @@
+catalog_product_summary:created_at
+catalog_product_summary:id
+catalog_product_summary:is_in_stock
+catalog_product_summary:name
+catalog_product_summary:order_count
+catalog_product_summary:order_updated_at
+catalog_product_summary:product_id
+catalog_product_summary:quote_count
+catalog_product_summary:quote_updated_at
+catalog_product_summary:sku
+catalog_product_summary:status
+catalog_product_summary:store_id
+catalog_product_summary:type_id
+catalog_product_summary:updated_at

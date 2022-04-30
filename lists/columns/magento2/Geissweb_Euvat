@@ -1,0 +1,16 @@
+customer_address_entity:vat_trader_address
+customer_address_entity:vat_trader_name
+quote_address:vat_trader_address
+quote_address:vat_trader_name
+sales_order_address:vat_trader_address
+sales_order_address:vat_trader_name
+vat_validation:handle
+vat_validation:request_message
+vat_validation:validation_id
+vat_validation:vat_id
+vat_validation:vat_is_valid
+vat_validation:vat_request_date
+vat_validation:vat_request_id
+vat_validation:vat_request_success
+vat_validation:vat_trader_address
+vat_validation:vat_trader_name

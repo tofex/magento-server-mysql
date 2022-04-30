@@ -1,0 +1,6 @@
+mailchimp_errors:dev
+mailchimp_interest_group:test
+mailchimp_stores:dev
+mailchimp_sync_batches:test
+mailchimp_sync_ecommerce:test
+mailchimp_webhook_request:live

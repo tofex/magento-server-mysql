@@ -1,0 +1,5 @@
+catalog_product:force_product_redirection
+catalog_product:product_redirection_url
+catalog_product:redirection_destination
+catalog_product:use_redirection_disabled
+catalog_product:use_redirection_outofstock

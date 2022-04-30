@@ -1,0 +1,10 @@
+sw_dailydeals_dailydeal:created_at
+sw_dailydeals_dailydeal:dailydeal_id
+sw_dailydeals_dailydeal:sw_date_from
+sw_dailydeals_dailydeal:sw_date_to
+sw_dailydeals_dailydeal:sw_deal_enable
+sw_dailydeals_dailydeal:sw_discount_amount
+sw_dailydeals_dailydeal:sw_discount_type
+sw_dailydeals_dailydeal:sw_product_price
+sw_dailydeals_dailydeal:sw_product_sku
+sw_dailydeals_dailydeal:updated_at

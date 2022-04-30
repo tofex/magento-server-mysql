@@ -1,0 +1,13 @@
+ipsecurity_log:blocked_from
+ipsecurity_log:blocked_ip
+ipsecurity_log:create_time
+ipsecurity_log:last_block_rule
+ipsecurity_log:logid
+ipsecurity_log:qty
+ipsecurity_log:update_time
+ipsecurity_token_log:blocked_from
+ipsecurity_token_log:blocked_ip
+ipsecurity_token_log:create_time
+ipsecurity_token_log:last_block_rule
+ipsecurity_token_log:logid
+ipsecurity_token_log:update_time

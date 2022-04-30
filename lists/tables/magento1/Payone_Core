@@ -1,0 +1,7 @@
+payone_config_payment_method:dev
+payone_customer:test
+payone_payment_ban:test
+payone_protocol_api:test
+payone_protocol_transactionstatus:test
+payone_ratepay_config:dev
+payone_transaction:test

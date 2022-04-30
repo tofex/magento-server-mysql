@@ -1,0 +1,3 @@
+quote_address:customer_address_attribute
+sales_order:customer_attribute
+sales_order_address:customer_address_attribute

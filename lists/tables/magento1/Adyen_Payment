@@ -1,0 +1,4 @@
+adyen_api_debug:live
+adyen_event_data:test
+adyen_event_data_queue:test
+adyen_order_payment:test

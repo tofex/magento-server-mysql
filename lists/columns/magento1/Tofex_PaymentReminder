@@ -1,0 +1,4 @@
+sales_flat_order:first_dunning_letter
+sales_flat_order:payment_reminder
+sales_flat_order:pre_collection_letter
+sales_flat_order:second_dunning_letter

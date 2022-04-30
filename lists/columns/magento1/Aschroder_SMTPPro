@@ -1,0 +1,6 @@
+smtppro_email_log:email_body
+smtppro_email_log:email_id
+smtppro_email_log:email_to
+smtppro_email_log:log_at
+smtppro_email_log:subject
+smtppro_email_log:template
