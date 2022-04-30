@@ -9,8 +9,8 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
+  -m  Mode (dev/test/live)
   -d  Date of the file
-  -m  Mode (dev/test)
 
 Example: ${scriptName} -m dev -d 2018-06-05
 EOF
@@ -21,17 +21,23 @@ trim()
   echo -n "$1" | xargs
 }
 
+system=
 date=
 mode=
 
-while getopts hd:m:? option; do
+while getopts hs:m:d:? option; do
   case "${option}" in
     h) usage; exit 1;;
-    d) date=$(trim "$OPTARG");;
+    s) system=$(trim "$OPTARG");;
     m) mode=$(trim "$OPTARG");;
+    d) date=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
 done
+
+if [[ -z "${system}" ]]; then
+  system="system"
+fi
 
 if [[ -z "${date}" ]]; then
   usage
@@ -50,7 +56,7 @@ if [ ! -f "${currentPath}/../env.properties" ]; then
   exit 1
 fi
 
-projectId=$(ini-parse "${currentPath}/../env.properties" "yes" "system" "projectId")
+projectId=$(ini-parse "${currentPath}/../env.properties" "yes" "${system}" "projectId")
 
 if [ -z "${projectId}" ]; then
   echo "No project id in environment!"
