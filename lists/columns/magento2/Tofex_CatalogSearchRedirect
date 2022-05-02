@@ -1,0 +1,10 @@
+catalogsearch_query:case_sensitive
+catalogsearch_query:created_at
+catalogsearch_query:mode
+catalogsearch_query:position
+catalogsearch_query:query_id
+catalogsearch_query:redirect_url
+catalogsearch_query:status
+catalogsearch_query:store_id
+catalogsearch_query:text
+catalogsearch_query:updated_at

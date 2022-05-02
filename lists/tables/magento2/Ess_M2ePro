@@ -20,6 +20,7 @@ m2epro_amazon_listing_product_variation_option:dev
 m2epro_amazon_marketplace:dev
 m2epro_amazon_order:test
 m2epro_amazon_order_action_processing:test
+m2epro_amazon_order_invoice:test
 m2epro_amazon_order_item:test
 m2epro_amazon_template_description:dev
 m2epro_amazon_template_description_definition:dev
