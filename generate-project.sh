@@ -7,13 +7,15 @@ if [[ ! -f ${currentPath}/../env.properties ]]; then
     exit 1
 fi
 
-echo "Writing all unknown tables into: ${currentPath}/project.list"
+mkdir -p "${currentPath}/../var/mysql"
+
+echo "Writing all unknown tables into: ${currentPath}/../var/mysql/project.list"
 unknownTables=( $("${currentPath}/tables.sh" -i -u) )
-rm -rf "${currentPath}/project.list"
-touch "${currentPath}/project.list"
+rm -rf "${currentPath}/../var/mysql/project.list"
+touch "${currentPath}/../var/mysql/project.list"
 for unknownTable in "${unknownTables[@]}"; do
-  echo "${unknownTable}:dev" >> "${currentPath}/project.list"
+  echo "${unknownTable}:dev" >> "${currentPath}/../var/mysql/project.list"
 done
 
-echo "Writing all unknown columns into: ${currentPath}/project.columns.list"
-"${currentPath}/tables.sh" -i -c > "${currentPath}/project.columns.list"
+echo "Writing all unknown columns into: ${currentPath}/../var/mysql/project.columns.list"
+"${currentPath}/tables.sh" -i -c > "${currentPath}/../var/mysql/project.columns.list"

@@ -130,26 +130,26 @@ for liveListEntry in "${liveList[@]}"; do
 done
 
 ignoreTables=( )
-if [[ "${useIgnoreList}" == 1 ]] && [[ -f "${currentPath}/ignore.list" ]]; then
+if [[ "${useIgnoreList}" == 1 ]] && [[ -f "${currentPath}/../var/mysql/ignore.list" ]]; then
   while IFS='' read -r line || [[ -n "$line" ]]; do
     if [[ -n $(trim "${line}") ]]; then
       ignoreTables+=( "${line}" )
     fi
-  done < "${currentPath}/ignore.list"
+  done < "${currentPath}/../var/mysql/ignore.list"
 fi
 
-if [[ "${useProjectList}" == 1 ]] && [[ -f "${currentPath}/project.list" ]]; then
-  devList=( $(grep -oP "(.*):dev$" "${currentPath}/project.list" | cat) )
+if [[ "${useProjectList}" == 1 ]] && [[ -f "${currentPath}/../var/mysql/project.list" ]]; then
+  devList=( $(grep -oP "(.*):dev$" "${currentPath}/../var/mysql/project.list" | cat) )
   for devListEntry in "${devList[@]}"; do
     knownDevTables+=( "Project:${devListEntry}" )
   done
 
-  testList=( $(grep -oP "(.*):test$" "${currentPath}/project.list" | cat) )
+  testList=( $(grep -oP "(.*):test$" "${currentPath}/../var/mysql/project.list" | cat) )
   for testListEntry in "${testList[@]}"; do
     knownTestTables+=( "Project:${testListEntry}" )
   done
 
-  liveList=( $(grep -oP "(.*):live$" "${currentPath}/project.list" | cat) )
+  liveList=( $(grep -oP "(.*):live$" "${currentPath}/../var/mysql/project.list" | cat) )
   for liveListEntry in "${liveList[@]}"; do
     knownLiveTables+=( "Project:${liveListEntry}" )
   done
@@ -309,14 +309,14 @@ if [[ -z "${exclude}" ]] && [[ "${#knownTables[@]}" -gt 0 ]]; then
         fi
         modules+=( "${module}" )
       else
-        if [[ "${useProjectList}" == 1 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -f "${currentPath}/project.columns.list" ]]; then
-          if [[ $(grep -w "${table}:${column}" "${currentPath}/project.columns.list" | wc -l) -gt 0 ]]; then
+        if [[ "${useProjectList}" == 1 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -f "${currentPath}/../var/mysql/project.columns.list" ]]; then
+          if [[ $(grep -w "${table}:${column}" "${currentPath}/../var/mysql/project.columns.list" | wc -l) -gt 0 ]]; then
             module="Project"
           fi
         fi
         if [[ -z "${module}" ]]; then
-          if [[ "${useIgnoreList}" == 1 ]] && [[ -f "${currentPath}/ignore.columns.list" ]]; then
-            if [[ $(grep -w "${table}:${column}" "${currentPath}/ignore.columns.list" | wc -l) -gt 0 ]]; then
+          if [[ "${useIgnoreList}" == 1 ]] && [[ -f "${currentPath}/../var/mysql/ignore.columns.list" ]]; then
+            if [[ $(grep -w "${table}:${column}" "${currentPath}/../var/mysql/ignore.columns.list" | wc -l) -gt 0 ]]; then
               module="Project"
             fi
           fi
