@@ -165,7 +165,7 @@ echo "Exporting ${#excludeTables[@]} tables without data"
 ignore=$(printf " --ignore-table=${databaseName}.%s" "${excludeTables[@]}")
 ignore=${ignore:1}
 
-dumpPath="${currentPath}/dumps"
+dumpPath="${currentPath}/../var/mysql/dumps"
 
 mkdir -p "${dumpPath}"
 

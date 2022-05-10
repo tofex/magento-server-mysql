@@ -63,7 +63,7 @@ if [ -z "${projectId}" ]; then
   exit 1
 fi
 
-file="${currentPath}/dumps/mysql-${mode}-${date}.sql.gz"
+file="${currentPath}/../var/mysql/dumps/mysql-${mode}-${date}.sql.gz"
 objectFile="${projectId}-${mode}.sql.gz"
 
 if [ ! -f "${file}" ]; then
