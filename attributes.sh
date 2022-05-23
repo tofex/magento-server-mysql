@@ -113,7 +113,7 @@ for entityType in "${entityTypes[@]}"; do
       fi
       modules+=( "${module}" )
     else
-      if [[ -f "${currentPath}/project.attributes.list" ]] && [[ $(grep -cFx "${entityType}:${attribute}" "${currentPath}/project.attributes.list" | cat) == 1 ]]; then
+      if [[ -f "${currentPath}/../var/mysql/project.attributes.list" ]] && [[ $(grep -cFx "${entityType}:${attribute}" "${currentPath}/../var/mysql/project.attributes.list" | cat) == 1 ]]; then
         echo "${entityType}:${attribute}: Project"
       else
         unknownAttributes+=( "${entityType}:${attribute}" )
