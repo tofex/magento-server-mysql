@@ -88,6 +88,8 @@ fi
 
 database=
 databaseHost=
+databaseServerType=
+databaseServerName=
 
 for server in "${serverList[@]}"; do
   database=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "database")
@@ -100,6 +102,8 @@ for server in "${serverList[@]}"; do
       echo "--- Creating database user on remote server: ${server} ---"
       databaseHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
     fi
+    databaseServerType="${serverType}"
+    databaseServerName="${server}"
     break
   fi
 done
@@ -162,105 +166,37 @@ else
 fi
 
 if [[ "${databaseType}" == "mysql" ]] && [[ "${databaseVersion}" == "8.0" ]]; then
-  cat <<EOF | tee "/tmp/create-user.sh" > /dev/null
-#!/bin/bash -e
-
-export MYSQL_PWD="${databaseRootPassword}"
-
-echo "Adding user: '${databaseUser}'@'localhost'"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "CREATE USER '${databaseUser}'@'localhost' IDENTIFIED BY '${databasePassword}';"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO '${databaseUser}'@'localhost';"
-
-if [[ "${grantSuperRights}" == "yes" ]]; then
-    echo "Granting super rights to user: '${databaseUser}'@'localhost'"
-    mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT SUPER ON *.* TO '${databaseUser}'@'localhost';"
-fi
-
-echo "Adding user: '${databaseUser}'@'127.0.0.1'"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "CREATE USER '${databaseUser}'@'127.0.0.1' IDENTIFIED BY '${databasePassword}';"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO '${databaseUser}'@'127.0.0.1';"
-
-if [[ "${grantSuperRights}" == "yes" ]]; then
-    echo "Granting super rights to user: '${databaseUser}'@'127.0.0.1'"
-    mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT SUPER ON *.* TO '${databaseUser}'@'127.0.0.1';"
-fi
-
-echo "Adding user: '${databaseUser}'@'%'"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "CREATE USER '${databaseUser}'@'%' IDENTIFIED BY '${databasePassword}';"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO '${databaseUser}'@'%';"
-
-if [[ "${grantSuperRights}" == "yes" ]]; then
-    echo "Granting super rights to user: '${databaseUser}'@'%'"
-    mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT SUPER ON *.* TO '${databaseUser}'@'%';"
-fi
-
-echo "Flushing privileges"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "FLUSH PRIVILEGES;"
-
-if [[ "${createDatabase}" == "yes" ]]; then
-  export MYSQL_PWD="${databasePassword}"
-
-  echo "Dropping database: ${databaseName}"
-  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" -e "DROP DATABASE IF EXISTS ${databaseName};"
-
-  echo "Creating database: ${databaseName}"
-  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" -e "CREATE DATABASE ${databaseName} CHARACTER SET utf8 COLLATE utf8_general_ci;";
-fi
-EOF
+  createUserScript="${currentPath}/create-user-local-8.0.sh"
 else
-  cat <<EOF | tee "/tmp/create-user.sh" > /dev/null
-#!/bin/bash -e
-
-export MYSQL_PWD="${databaseRootPassword}"
-
-echo "Adding user: '${databaseUser}'@'localhost'"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO '${databaseUser}'@'localhost' identified by '${databasePassword}' WITH GRANT OPTION;"
-if [[ "${databaseVersion}" == "5.7" ]]; then
-  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "ALTER USER '${databaseUser}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${databasePassword}';"
+  createUserScript="${currentPath}/create-user-local.sh"
 fi
 
-if [[ "${grantSuperRights}" == "yes" ]]; then
-    echo "Granting super rights to user: '${databaseUser}'@'localhost'"
-    mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT SUPER ON *.* TO '${databaseUser}'@'localhost';"
-fi
-
-echo "Adding user: '${databaseUser}'@'%'"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO '${databaseUser}'@'%' identified by '${databasePassword}' WITH GRANT OPTION;"
-if [[ "${databaseVersion}" == "5.7" ]]; then
-  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "ALTER USER '${databaseUser}'@'%' IDENTIFIED WITH mysql_native_password BY '${databasePassword}';"
-fi
-
-if [[ "${grantSuperRights}" == "yes" ]]; then
-    echo "Granting super rights to user: '${databaseUser}'@'%'"
-    mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT SUPER ON *.* TO '${databaseUser}'@'%';"
-fi
-
-echo "Flushing privileges"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "FLUSH PRIVILEGES;"
-
-if [[ "${createDatabase}" == "yes" ]]; then
-  export MYSQL_PWD="${databasePassword}"
-
-  echo "Dropping database: ${databaseName}"
-  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" -e "DROP DATABASE IF EXISTS ${databaseName};"
-
-  echo "Creating database: ${databaseName}"
-  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" -e "CREATE DATABASE ${databaseName} CHARACTER SET utf8 COLLATE utf8_general_ci;";
-fi
-EOF
-fi
-
-chmod +x /tmp/create-user.sh
-
-if [[ "${serverType}" == "local" ]] || [[ "${serverType}" == "docker" ]]; then
-  /tmp/create-user.sh
-  rm -rf /tmp/create-user.sh
+if [[ "${databaseServerType}" == "local" ]] || [[ "${databaseServerType}" == "docker" ]]; then
+  "${createUserScript}" \
+    -v "${databaseVersion}" \
+    -s "${databaseRootPassword}" \
+    -o "${databaseHost}" \
+    -p "${databasePort}" \
+    -e "${databaseUser}" \
+    -w "${databasePassword}" \
+    -b "${databaseName}" \
+    -g "${grantSuperRights}" \
+    -c "${createDatabase}"
 elif [[ "${serverType}" == "ssh" ]]; then
-  sshUser="$(whoami)"
-  echo "Copying script to ${sshUser}@${databaseHost}:/tmp/create-user.sh"
-  scp -q "/tmp/create-user.sh" "${sshUser}@${databaseHost}:/tmp/create-user.sh"
-  ssh "${sshUser}@${databaseHost}" "/tmp/create-user.sh"
-  ssh "${sshUser}@${databaseHost}" "rm -rf /tmp/create-user.sh"
+  sshUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseServerName}" "user")
+  sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseServerName}" "host")
+
+  echo "Getting server fingerprint"
+  ssh-keyscan "${sshHost}" >> ~/.ssh/known_hosts
+
+  echo "Copying script to ${sshUser}@${databaseHost}:/tmp/create-user-local.sh"
+  scp -q "${createUserScript}" "${sshUser}@${databaseHost}:/tmp/create-user-local.sh"
+
+  echo "Executing script at ${sshUser}@${sshHost}:/tmp/create-user-local.sh"
+  ssh "${sshUser}@${databaseHost}" "/tmp/create-user-local.sh"
+
+  echo "Removing script from: ${sshUser}@${sshHost}:/tmp/create-user-local.sh"
+  ssh "${sshUser}@${databaseHost}" "rm -rf /tmp/create-user-local.sh"
 else
   echo "Invalid database server type: ${serverType}"
   exit 1
