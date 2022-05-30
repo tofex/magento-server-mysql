@@ -182,7 +182,7 @@ if [[ "${databaseServerType}" == "local" ]] || [[ "${databaseServerType}" == "do
     -b "${databaseName}" \
     -g "${grantSuperRights}" \
     -c "${createDatabase}"
-elif [[ "${serverType}" == "ssh" ]]; then
+elif [[ "${databaseServerType}" == "ssh" ]]; then
   sshUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseServerName}" "user")
   sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseServerName}" "host")
 
@@ -193,11 +193,20 @@ elif [[ "${serverType}" == "ssh" ]]; then
   scp -q "${createUserScript}" "${sshUser}@${databaseHost}:/tmp/create-user-local.sh"
 
   echo "Executing script at ${sshUser}@${sshHost}:/tmp/create-user-local.sh"
-  ssh "${sshUser}@${databaseHost}" "/tmp/create-user-local.sh"
+  ssh "${sshUser}@${databaseHost}" "/tmp/create-user-local.sh" \
+    -v "${databaseVersion}" \
+    -s "${databaseRootPassword}" \
+    -o "${databaseHost}" \
+    -p "${databasePort}" \
+    -e "${databaseUser}" \
+    -w "${databasePassword}" \
+    -b "${databaseName}" \
+    -g "${grantSuperRights}" \
+    -c "${createDatabase}"
 
   echo "Removing script from: ${sshUser}@${sshHost}:/tmp/create-user-local.sh"
   ssh "${sshUser}@${databaseHost}" "rm -rf /tmp/create-user-local.sh"
 else
-  echo "Invalid database server type: ${serverType}"
+  echo "Invalid database server type: ${databaseServerType}"
   exit 1
 fi

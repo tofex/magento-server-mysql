@@ -5,13 +5,14 @@ scriptName="${0##*/}"
 usage()
 {
 cat >&2 << EOF
+
 usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
   -s  System name, default: system
   -i  Import file
-  -t  Path to temp directory
+  -t  Path to temp directory, default: /tmp/mysql
   -r  Remove import file after import, default: no
 
 Example: ${scriptName} -i import.sql
@@ -23,9 +24,9 @@ trim()
   echo -n "$1" | xargs
 }
 
-system="system"
+system=
 importFile=
-removeFile=0
+removeFile="no"
 tempDir=
 
 while getopts hs:i:t:r? option; do
@@ -34,30 +35,23 @@ while getopts hs:i:t:r? option; do
     s) system=$(trim "$OPTARG");;
     i) importFile=$(trim "$OPTARG");;
     t) tempDir=$(trim "$OPTARG");;
-    r) removeFile=1;;
+    r) removeFile="yes";;
     ?) usage; exit 1;;
   esac
 done
 
 if [[ -z "${system}" ]]; then
-  usage
-  exit 1
+  system="system"
 fi
 
 if [[ -z "${importFile}" ]]; then
+  echo "No import file specified!"
   usage
   exit 1
 fi
 
 if [[ -z "${tempDir}" ]]; then
   tempDir="/tmp/mysql"
-fi
-
-if [[ ! -d "${tempDir}" ]]; then
-  rm -rf "${tempDir}"
-
-  echo "Creating temp directory at: ${tempDir}"
-  mkdir -p "${tempDir}"
 fi
 
 currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -75,6 +69,8 @@ fi
 
 database=
 databaseHost=
+databaseServerName=
+databaseServerType=
 for server in "${serverList[@]}"; do
   database=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "database")
   if [[ -n "${database}" ]]; then
@@ -86,6 +82,8 @@ for server in "${serverList[@]}"; do
       databaseHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
       echo "--- Importing database on remote server: ${server} ---"
     fi
+    databaseServerName="${server}"
+    databaseServerType="${serverType}"
     break
   fi
 done
@@ -120,37 +118,49 @@ if [[ -z "${databaseName}" ]]; then
   exit 1
 fi
 
-tempImportFile="${tempDir}"/$(basename "${importFile}")
+if [[ "${databaseServerType}" == "local" ]]; then
+  "${currentPath}/import-local.sh" \
+    -o "${databaseHost}" \
+    -p "${databasePort}" \
+    -e "${databaseUser}" \
+    -w "${databasePassword}" \
+    -b "${databaseName}" \
+    -i "${importFile}" \
+    -t "${tempDir}" \
+    -g "${removeFile}"
+elif [[ "${databaseServerType}" == "ssh" ]]; then
+  sshUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseServerName}" "user")
+  sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseServerName}" "host")
 
-echo "Copying import file from: ${importFile} to: ${tempImportFile}"
-cp "${importFile}" "${tempImportFile}"
+  echo "Getting server fingerprint"
+  ssh-keyscan "${sshHost}" >> ~/.ssh/known_hosts
 
-echo "Preparing import file at: ${tempDir}/import.sql"
-if [[ "${tempImportFile: -7}" == ".tar.gz" ]]; then
-  tar -xOzf "${tempImportFile}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^DROP\sDATABASE/d' | sed -e '/^USE\s/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' > "${tempDir}/import.sql"
-elif [[ "${tempImportFile: -7}" == ".sql.gz" ]]; then
-  cat "${tempImportFile}" | gzip -d -q | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^DROP\sDATABASE/d' | sed -e '/^USE\s/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' > "${tempDir}/import.sql"
-elif [[ "${tempImportFile: -4}" == ".zip" ]]; then
-  unzip -p "${tempImportFile}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^DROP\sDATABASE/d' | sed -e '/^USE\s/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' > "${tempDir}/import.sql"
-elif [[ "${tempImportFile: -4}" == ".sql" ]]; then
-  cat "${tempImportFile}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^DROP\sDATABASE/d' | sed -e '/^USE\s/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' > "${tempDir}/import.sql"
+  importFileName=$(basename "${importFile}")
+
+  echo "Copying file to ${sshUser}@${databaseHost}:/tmp/${importFileName}"
+  scp -q "${importFile}" "${sshUser}@${databaseHost}:/tmp/${importFileName}"
+  echo "Copying script to ${sshUser}@${databaseHost}:/tmp/import-local.sh"
+  scp -q "${currentPath}/import-local.sh" "${sshUser}@${databaseHost}:/tmp/import-local.sh"
+
+  echo "Executing script at ${sshUser}@${sshHost}:/tmp/import-local.sh"
+  ssh "${sshUser}@${databaseHost}" "/tmp/import-local.sh" \
+    -o "${databaseHost}" \
+    -p "${databasePort}" \
+    -e "${databaseUser}" \
+    -w "${databasePassword}" \
+    -b "${databaseName}" \
+    -i "/tmp/${importFileName}" \
+    -t "${tempDir}" \
+    -g "yes"
+
+  echo "Removing script from: ${sshUser}@${sshHost}:/tmp/import-local.sh"
+  ssh "${sshUser}@${databaseHost}" "rm -rf /tmp/import-local.sh"
+
+  if [[ "${removeFile}" == "yes" ]]; then
+    echo "Removing import file at: ${importFile}"
+    rm -rf "${importFile}"
+  fi
 else
-  echo "Unsupported file format"
+  echo "Invalid database server type: ${databaseServerType}"
   exit 1
-fi
-
-echo "Removing import file at: ${tempImportFile}"
-rm -rf "${tempImportFile}"
-
-export MYSQL_PWD="${databasePassword}"
-
-echo "Importing dump from file: ${tempDir}/import.sql"
-mysql "-h${databaseHost}" "-P${databasePort:-3306}" "-u${databaseUser}" --init-command="SET SESSION FOREIGN_KEY_CHECKS=0;" "${databaseName}" < "${tempDir}/import.sql"
-
-echo "Removing prepared import file at: ${tempDir}/import.sql"
-rm -rf "${tempDir}/import.sql"
-
-if [[ "${removeFile}" == 1 ]]; then
-  echo "Removing import file at: ${importFile}"
-  rm -rf "${importFile}"
 fi
