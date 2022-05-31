@@ -127,7 +127,7 @@ if [[ "${databaseServerType}" == "local" ]]; then
     -b "${databaseName}" \
     -i "${importFile}" \
     -t "${tempDir}" \
-    -g "${removeFile}"
+    -r "${removeFile}"
 elif [[ "${databaseServerType}" == "ssh" ]]; then
   sshUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseServerName}" "user")
   sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseServerName}" "host")
@@ -151,7 +151,7 @@ elif [[ "${databaseServerType}" == "ssh" ]]; then
     -b "${databaseName}" \
     -i "/tmp/${importFileName}" \
     -t "${tempDir}" \
-    -g "yes"
+    -r "yes"
 
   echo "Removing script from: ${sshUser}@${sshHost}:/tmp/import-local.sh"
   ssh "${sshUser}@${databaseHost}" "rm -rf /tmp/import-local.sh"
