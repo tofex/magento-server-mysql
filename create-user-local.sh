@@ -10,12 +10,12 @@ usage: ${scriptName} options
 OPTIONS:
   -h  Show this message
   -v  Database version
-  -u  Root user, default: root
-  -s  Root password
+  -r  Root user, default: root
+  -w  Root password
   -o  Database host, default: localhost
   -p  Database port, default: 3306
-  -e  Name of the database user to create
-  -w  Database password of the user to create
+  -u  Name of the database user to create
+  -s  Database password of the user to create
   -b  Database name to grant the user rights to
   -g  Grant user super rights, default: no
   -c  Create initial database, default: no
@@ -40,16 +40,16 @@ databaseName=
 grantSuperRights=
 createDatabase=
 
-while getopts hv:u:s:o:p:e:w:b:g:c:? option; do
+while getopts hv:r:w:o:p:u:s:b:g:c:? option; do
   case "${option}" in
     h) usage; exit 1;;
     v) databaseVersion=$(trim "$OPTARG");;
-    u) databaseRootUser=$(trim "$OPTARG");;
-    s) databaseRootPassword=$(trim "$OPTARG");;
+    r) databaseRootUser=$(trim "$OPTARG");;
+    w) databaseRootPassword=$(trim "$OPTARG");;
     o) databaseHost=$(trim "$OPTARG");;
     p) databasePort=$(trim "$OPTARG");;
-    e) databaseUser=$(trim "$OPTARG");;
-    w) databasePassword=$(trim "$OPTARG");;
+    u) databaseUser=$(trim "$OPTARG");;
+    s) databasePassword=$(trim "$OPTARG");;
     b) databaseName=$(trim "$OPTARG");;
     g) grantSuperRights=$(trim "$OPTARG");;
     c) createDatabase=$(trim "$OPTARG");;
