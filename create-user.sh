@@ -92,19 +92,18 @@ if [[ -n "${databaseName}" ]]; then
   "${currentPath}/../env/update-database.sh -d \"${databaseName}\""
 fi
 
-database=$("${currentPath}/../core/server/database-single.sh" -s "${system}")
+database=$("${currentPath}/../core/server/database/single.sh" -s "${system}")
 
 databaseType=$(ini-parse "${currentPath}/../env.properties" "yes" "${database}" "type")
 databaseVersion=$(ini-parse "${currentPath}/../env.properties" "yes" "${database}" "version")
 
 if [[ "${databaseType}" == "mysql" ]] && [[ "${databaseVersion}" == "8.0" ]]; then
-  createUserScript="${currentPath}/create-user-local-8.0.sh"
+  createUserScript="${currentPath}/create-user/database-mysql-8.0.sh"
 else
-  createUserScript="${currentPath}/create-user-local.sh"
+  createUserScript="${currentPath}/create-user/database.sh"
 fi
 
-"${currentPath}/../core/script/database-single.sh" "${createUserScript}" \
-  -v "${databaseVersion}" \
+"${currentPath}/../core/script/database/single.sh" "${createUserScript}" \
   -r "${databaseRootUser}" \
   -w "${databaseRootPassword}" \
   -g "${grantSuperRights}" \
