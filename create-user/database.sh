@@ -114,7 +114,7 @@ export MYSQL_PWD="${databaseRootPassword}"
 
 echo "Adding user: '${databaseUser}'@'localhost'"
 mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO '${databaseUser}'@'localhost' identified by '${databasePassword}' WITH GRANT OPTION;"
-if [[ "${"${databaseType}"}" == "mysql" ]] && [[ "${databaseVersion}" == "5.7" ]]; then
+if [[ "${databaseType}" == "mysql" ]] && [[ "${databaseVersion}" == "5.7" ]]; then
   mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "ALTER USER '${databaseUser}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${databasePassword}';"
 fi
 
@@ -125,7 +125,7 @@ fi
 
 echo "Adding user: '${databaseUser}'@'%'"
 mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO '${databaseUser}'@'%' identified by '${databasePassword}' WITH GRANT OPTION;"
-if [[ "${"${databaseType}"}" == "mysql" ]] && [[ "${databaseVersion}" == "5.7" ]]; then
+if [[ "${databaseType}" == "mysql" ]] && [[ "${databaseVersion}" == "5.7" ]]; then
   mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "ALTER USER '${databaseUser}'@'%' IDENTIFIED WITH mysql_native_password BY '${databasePassword}';"
 fi
 

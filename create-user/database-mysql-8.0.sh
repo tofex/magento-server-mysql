@@ -35,8 +35,6 @@ databasePort=
 databaseUser=
 databasePassword=
 databaseName=
-databaseType=
-databaseVersion=
 databaseRootUser=
 databaseRootPassword=
 grantSuperRights=
@@ -50,8 +48,8 @@ while getopts ho:p:u:s:b:t:v:r:w:g:c:? option; do
     u) databaseUser=$(trim "$OPTARG");;
     s) databasePassword=$(trim "$OPTARG");;
     b) databaseName=$(trim "$OPTARG");;
-    t) databaseType=$(trim "$OPTARG");;
-    v) databaseVersion=$(trim "$OPTARG");;
+    t) ;;
+    v) ;;
     r) databaseRootUser=$(trim "$OPTARG");;
     w) databaseRootPassword=$(trim "$OPTARG");;
     g) grantSuperRights=$(trim "$OPTARG");;
@@ -80,16 +78,6 @@ fi
 
 if [[ -z "${databaseName}" ]]; then
   echo "No database name specified!"
-  exit 1
-fi
-
-if [[ -z "${databaseType}" ]]; then
-  echo "No database type specified!"
-  exit 1
-fi
-
-if [[ -z "${databaseVersion}" ]]; then
-  echo "No database version specified!"
   exit 1
 fi
 
