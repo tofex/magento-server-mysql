@@ -12,11 +12,11 @@ OPTIONS:
   -h  Show this message
   -o  Database host, default: localhost
   -p  Database port, default: 3306
-  -e  Name of the database user
-  -w  Password of the database user
+  -u  Name of the database user
+  -s  Password of the database user
   -b  Name of the database to import into
   -i  Import file
-  -t  Path to temp directory, default: /tmp/mysql
+  -d  Path to temp directory, default: /tmp/mysql
   -r  Remove import file after import, default: no
 
 Example: ${scriptName} -i import.sql
@@ -37,16 +37,18 @@ importFile=
 tempDir=
 removeFile=
 
-while getopts ho:p:e:w:b:i:t:r? option; do
+while getopts ho:p:u:s:b:t:v:i:d:r? option; do
   case "${option}" in
     h) usage; exit 1;;
     o) databaseHost=$(trim "$OPTARG");;
     p) databasePort=$(trim "$OPTARG");;
-    e) databaseUser=$(trim "$OPTARG");;
-    w) databasePassword=$(trim "$OPTARG");;
+    u) databaseUser=$(trim "$OPTARG");;
+    s) databasePassword=$(trim "$OPTARG");;
     b) databaseName=$(trim "$OPTARG");;
+    t) ;;
+    v) ;;
     i) importFile=$(trim "$OPTARG");;
-    t) tempDir=$(trim "$OPTARG");;
+    d) tempDir=$(trim "$OPTARG");;
     r) removeFile=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
