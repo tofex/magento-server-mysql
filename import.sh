@@ -10,6 +10,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
+  -s  System name, default: system
   -i  Import file
   -t  Path to temp directory, default: /tmp/mysql
   -r  Remove import file after import, default: no
@@ -23,6 +24,7 @@ trim()
   echo -n "$1" | xargs
 }
 
+systemName=
 importFile=
 tempDir=
 removeFile=
@@ -30,12 +32,17 @@ removeFile=
 while getopts hs:i:t:r? option; do
   case "${option}" in
     h) usage; exit 1;;
+    s) systemName=$(trim "$OPTARG");;
     i) importFile=$(trim "$OPTARG");;
     t) tempDir=$(trim "$OPTARG");;
     r) removeFile="yes";;
     ?) usage; exit 1;;
   esac
 done
+
+if [[ -z "${systemName}" ]]; then
+  systemName="system"
+fi
 
 if [[ -z "${importFile}" ]]; then
   echo "No import file specified!"

@@ -19,7 +19,7 @@ OPTIONS:
   -d  Path to temp directory, default: /tmp/mysql
   -r  Remove import file after import, default: no
 
-Example: ${scriptName} -i import.sql
+Example: ${scriptName} -u magento -s magento -b magento -i import.sql
 EOF
 }
 
@@ -37,7 +37,7 @@ importFile=
 tempDir=
 removeFile=
 
-while getopts ho:p:u:s:b:t:v:i:d:r? option; do
+while getopts ho:p:u:s:b:t:v:i:d:r:? option; do
   case "${option}" in
     h) usage; exit 1;;
     o) databaseHost=$(trim "$OPTARG");;
