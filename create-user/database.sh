@@ -110,29 +110,24 @@ if [[ -z "${createDatabase}" ]]; then
   createDatabase="no"
 fi
 
+userNames=( "'${databaseUser}'@'%'" "'${databaseUser}'@'127.0.0.1'" "'${databaseUser}'@'localhost'" )
+
 export MYSQL_PWD="${databaseRootPassword}"
 
-echo "Adding user: '${databaseUser}'@'localhost'"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO '${databaseUser}'@'localhost' identified by '${databasePassword}' WITH GRANT OPTION;"
-if [[ "${databaseType}" == "mysql" ]] && [[ "${databaseVersion}" == "5.7" ]]; then
-  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "ALTER USER '${databaseUser}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${databasePassword}';"
-fi
+for userName in "${userNames[@]}"; do
+  echo "Adding user: ${userName}"
+  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO ${userName} identified by '${databasePassword}' WITH GRANT OPTION;"
 
-if [[ "${grantSuperRights}" == "yes" ]]; then
-    echo "Granting super rights to user: '${databaseUser}'@'localhost'"
-    mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT SUPER ON *.* TO '${databaseUser}'@'localhost';"
-fi
+  if [[ "${databaseType}" == "mysql" ]] && [[ "${databaseVersion}" == "5.7" ]]; then
+    echo "Granting password login to user: ${userName}"
+    mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "ALTER USER ${userName} IDENTIFIED WITH mysql_native_password BY '${databasePassword}';"
+  fi
 
-echo "Adding user: '${databaseUser}'@'%'"
-mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT ALL ON ${databaseName}.* TO '${databaseUser}'@'%' identified by '${databasePassword}' WITH GRANT OPTION;"
-if [[ "${databaseType}" == "mysql" ]] && [[ "${databaseVersion}" == "5.7" ]]; then
-  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "ALTER USER '${databaseUser}'@'%' IDENTIFIED WITH mysql_native_password BY '${databasePassword}';"
-fi
-
-if [[ "${grantSuperRights}" == "yes" ]]; then
-    echo "Granting super rights to user: '${databaseUser}'@'%'"
-    mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT SUPER ON *.* TO '${databaseUser}'@'%';"
-fi
+  if [[ "${grantSuperRights}" == "yes" ]]; then
+    echo "Granting super rights to user: ${userName}"
+    mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "GRANT SUPER ON *.* TO ${userName};"
+  fi
+done
 
 echo "Flushing privileges"
 mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseRootUser}" -e "FLUSH PRIVILEGES;"

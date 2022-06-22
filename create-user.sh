@@ -10,15 +10,15 @@ usage: ${scriptName} options
 OPTIONS:
   -h  Show this message
   -y  System name, default: system
-  -u  Root user, default: root
-  -s  Root password
-  -e  Name of the database user to create
-  -w  Database password of the user to create
+  -r  Root user, default: root
+  -w  Root password
+  -u  Name of the database user to create
+  -s  Database password of the user to create
   -b  Database name to grant the user rights to
   -g  Grant user super rights
   -c  Create initial database
 
-Example: ${scriptName} -u root -s secret -e user -w password -b dbname -g -c
+Example: ${scriptName} -r root -w secret -u user -s password -b dbname -g -c
 EOF
 }
 
