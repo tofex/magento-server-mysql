@@ -103,8 +103,12 @@ fi
 
 tempImportFile="${tempDir}"/$(basename "${importFile}")
 
-echo "Copying import file from: ${importFile} to: ${tempImportFile}"
-cp "${importFile}" "${tempImportFile}"
+copied=0
+if [[ "${importFile}" != "${tempImportFile}" ]]; then
+  echo "Copying import file from: ${importFile} to: ${tempImportFile}"
+  cp "${importFile}" "${tempImportFile}"
+  copied=1
+fi
 
 echo "Preparing import file at: ${tempDir}/import.sql"
 if [[ "${tempImportFile: -7}" == ".tar.gz" ]]; then
@@ -120,8 +124,10 @@ else
   exit 1
 fi
 
-echo "Removing import file at: ${tempImportFile}"
-rm -rf "${tempImportFile}"
+if [[ "${copied}" == 1 ]]; then
+  echo "Removing import file at: ${tempImportFile}"
+  rm -rf "${tempImportFile}"
+fi
 
 export MYSQL_PWD="${databasePassword}"
 

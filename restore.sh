@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 scriptName="${0##*/}"
 
 usage()
@@ -70,13 +72,6 @@ fi
 
 if [[ ! -d "${tempDir}" ]]; then
   echo "Temp directory does not exists at: ${tempDir}"
-  exit 1
-fi
-
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-if [[ ! -f "${currentPath}/../env.properties" ]]; then
-  echo "No environment specified!"
   exit 1
 fi
 
