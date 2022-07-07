@@ -66,6 +66,6 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
 fi
 
 "${currentPath}/../core/script/database/single.sh" "${currentPath}/import/database.sh" \
-  -i "${importFile}" \
+  -i "file:${importFile}" \
   -d "${tempDir}" \
   -r "${removeFile}"
