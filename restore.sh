@@ -67,12 +67,7 @@ if [[ -z "${dumpFile}" ]] && [[ "${system}" == "system" ]] && [[ "${mode}" != "d
 fi
 
 if [[ -z "${tempDir}" ]]; then
-  tempDir="/tmp"
-fi
-
-if [[ ! -d "${tempDir}" ]]; then
-  echo "Temp directory does not exists at: ${tempDir}"
-  exit 1
+  tempDir="/tmp/mysql"
 fi
 
 echo "--- Restoring database ---"
@@ -114,7 +109,7 @@ if [[ ! -f "${dumpFile}" ]]; then
 fi
 
 "${currentPath}/init.sh" -s "${system}"
-"${currentPath}/import.sh" -s "${system}" -i "${dumpFile}" -t "${tempDir}"
+"${currentPath}/import.sh" -i "${dumpFile}" -t "${tempDir}"
 
 if [[ "${remove}" == 1 ]]; then
   echo "Removing downloaded dump: ${dumpFile}"

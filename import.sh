@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 scriptName="${0##*/}"
 
 usage()
@@ -24,7 +26,6 @@ trim()
   echo -n "$1" | xargs
 }
 
-systemName=
 importFile=
 tempDir=
 removeFile=
@@ -32,17 +33,12 @@ removeFile=
 while getopts hs:i:t:r? option; do
   case "${option}" in
     h) usage; exit 1;;
-    s) systemName=$(trim "$OPTARG");;
     i) importFile=$(trim "$OPTARG");;
     t) tempDir=$(trim "$OPTARG");;
     r) removeFile="yes";;
     ?) usage; exit 1;;
   esac
 done
-
-if [[ -z "${systemName}" ]]; then
-  systemName="system"
-fi
 
 if [[ -z "${importFile}" ]]; then
   echo "No import file specified!"
@@ -56,13 +52,6 @@ fi
 
 if [[ -z "${removeFile}" ]]; then
   removeFile="no"
-fi
-
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-if [[ ! -f "${currentPath}/../env.properties" ]]; then
-  echo "No environment specified!"
-  exit 1
 fi
 
 "${currentPath}/../core/script/database/single.sh" "${currentPath}/import/database.sh" \
