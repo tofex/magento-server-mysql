@@ -97,7 +97,7 @@ if [ -z "${databaseName}" ]; then
   exit 1
 fi
 
-dumpPath=${currentPath}/dumps
+dumpPath="${currentPath}/../var/mysql/dumps"
 
 mkdir -p "${dumpPath}"
 

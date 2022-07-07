@@ -53,7 +53,7 @@ fi
 
 currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-dumpPath="${currentPath}/dumps"
+dumpPath="${currentPath}/../var/mysql/dumps"
 
 cd "${dumpPath}"
 

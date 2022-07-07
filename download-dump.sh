@@ -67,7 +67,7 @@ if [[ -z "${accessToken}" ]]; then
   read -r accessToken
 fi
 
-dumpPath="${currentPath}/dumps/"
+dumpPath="${currentPath}/../var/mysql/dumps"
 
 mkdir -p "${dumpPath}"
 

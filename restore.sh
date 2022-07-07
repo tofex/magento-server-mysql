@@ -91,7 +91,7 @@ if [[ "${download}" == 1 ]]; then
 fi
 
 if [[ "${download}" == 1 ]] || [[ -z "${dumpFile}" ]]; then
-  dumpPath="${currentPath}/dumps"
+  dumpPath="${currentPath}/../var/mysql/dumps"
 
   mkdir -p "${dumpPath}"
 
