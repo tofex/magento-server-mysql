@@ -104,12 +104,12 @@ if [[ "${fileFound}" == 0 ]]; then
   fi
 fi
 
-if [[ $(type logDisable &>/dev/null && echo "1" || echo "0") == 1 ]]; then
+if [[ $(type -t logDisable) == "function" ]]; then
   logDisable
 fi
 
 curl -X GET -H "Authorization: Bearer ${accessToken}" -o "${file}" "${fileUrl}"
 
-if [[ $(type logEnable &>/dev/null && echo "1" || echo "0") == 1 ]]; then
+if [[ $(type -t logEnable) == "function" ]]; then
   logEnable
 fi
