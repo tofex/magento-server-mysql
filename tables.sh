@@ -10,7 +10,8 @@ usage: ${scriptName} options
 OPTIONS:
   -h  Show this message
   -s  System name, default: system
-  -e  List tables to exclude (dev/test/live)
+  -e  List tables to exclude (cms/dev/test/live)
+  -d  List tables to include (cms/dev/test/live)
   -i  Use ignore list if available
   -p  Use project list if available
   -m  List only the modules
@@ -29,18 +30,20 @@ trim()
 system=
 installation="install"
 exclude=
+include=
 useIgnoreList=0
 useProjectList=0
 showOnlyModules=0
 showOnlyUnknownTables=0
 showOnlyUnknownColumns=0
 
-while getopts hs:l:e:ipmuc? option; do
+while getopts hs:l:e:d:ipmuc? option; do
   case "${option}" in
     h) usage; exit 1;;
     s) system=$(trim "$OPTARG");;
     l) installation=$(trim "$OPTARG");;
     e) exclude=$(trim "$OPTARG");;
+    d) include=$(trim "$OPTARG");;
     i) useIgnoreList=1;;
     p) useProjectList=1;;
     m) showOnlyModules=1;;
@@ -54,7 +57,12 @@ if [[ -z "${system}" ]]; then
   system="system"
 fi
 
-if [[ -n "${exclude}" ]] && [[ "${exclude}" != "dev" ]] && [[ "${exclude}" != "test" ]] && [[ "${exclude}" != "live" ]]; then
+if [[ -n "${exclude}" ]] && [[ "${exclude}" != "cms" ]] && [[ "${exclude}" != "dev" ]] && [[ "${exclude}" != "test" ]] && [[ "${exclude}" != "live" ]]; then
+  usage
+  exit 1
+fi
+
+if [[ -n "${include}" ]] && [[ "${include}" != "cms" ]] && [[ "${include}" != "dev" ]] && [[ "${include}" != "test" ]] && [[ "${include}" != "live" ]]; then
   usage
   exit 1
 fi
@@ -80,12 +88,12 @@ for server in "${serverList[@]}"; do
     serverType=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
     if [[ "${serverType}" == "local" ]]; then
       databaseHost="localhost"
-      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]]; then
+      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
         echo "--- Checking database tables on local server: ${server} ---"
       fi
     else
       databaseHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
-      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]]; then
+      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
         echo "--- Checking database tables on remote server: ${server} ---"
       fi
     fi
@@ -110,6 +118,12 @@ if [[ -z "${magentoVersion}" ]]; then
 fi
 
 cd "${currentPath}/lists/tables/magento${magentoVersion:0:1}"
+
+cmsList=( $(grep -roP "(.*):cms$" . | cut -c 3-) )
+knownCmsTables=( )
+for cmsListEntry in "${cmsList[@]}"; do
+  knownCmsTables+=( "${cmsListEntry}" )
+done
 
 devList=( $(grep -roP "(.*):dev$" . | cut -c 3-) )
 knownDevTables=( )
@@ -139,6 +153,11 @@ if [[ "${useIgnoreList}" == 1 ]] && [[ -f "${currentPath}/../var/mysql/ignore.li
 fi
 
 if [[ "${useProjectList}" == 1 ]] && [[ -f "${currentPath}/../var/mysql/project.list" ]]; then
+  cmsList=( $(grep -oP "(.*):cms$" "${currentPath}/../var/mysql/project.list" | cat) )
+  for cmsListEntry in "${cmsList[@]}"; do
+    knownCmsTables+=( "Project:${cmsListEntry}" )
+  done
+
   devList=( $(grep -oP "(.*):dev$" "${currentPath}/../var/mysql/project.list" | cat) )
   for devListEntry in "${devList[@]}"; do
     knownDevTables+=( "Project:${devListEntry}" )
@@ -162,12 +181,42 @@ knownTables=( )
 unknownTables=( )
 modules=( )
 for table in "${allTables[@]}"; do
+  for knownCmsTable in "${knownCmsTables[@]}"; do
+    IFS=':' read -r -a knownCmsTableData <<< "${knownCmsTable}"
+    if [[ "${table}" == "${knownCmsTableData[1]}" ]]; then
+      modules+=( "${knownCmsTableData[0]}" )
+      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
+        echo "${table}: ${knownCmsTableData[0]}"
+      elif [[ "${include}" == "cms" ]]; then
+        echo "${table}"
+      fi
+      knownTables+=( "${table}" )
+      continue 2;
+    fi
+    # shellcheck disable=SC2076,SC2049
+    if [[ "${knownCmsTableData[1]}" =~ "*" ]]; then
+      pattern=$(echo "${knownCmsTableData[1]}" | sed 's/*/.*/')
+      # shellcheck disable=SC2003
+      if [[ $(expr match "${table}" "${pattern}") -eq "${#table}" ]]; then
+        modules+=( "${knownCmsTableData[0]}" )
+        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
+          echo "${table}: ${knownCmsTableData[0]}"
+        elif [[ "${include}" == "cms" ]]; then
+          echo "${table}"
+        fi
+        knownTables+=( "${table}" )
+        continue 2;
+      fi
+    fi
+  done
   for knownDevTable in "${knownDevTables[@]}"; do
     IFS=':' read -r -a knownDevTableData <<< "${knownDevTable}"
     if [[ "${table}" == "${knownDevTableData[1]}" ]]; then
       modules+=( "${knownDevTableData[0]}" )
-      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]]; then
+      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
         echo "${table}: ${knownDevTableData[0]}"
+      elif [[ "${exclude}" == "cms" ]] || [[ "${include}" == "dev" ]]; then
+        echo "${table}"
       fi
       knownTables+=( "${table}" )
       continue 2;
@@ -175,10 +224,13 @@ for table in "${allTables[@]}"; do
     # shellcheck disable=SC2076,SC2049
     if [[ "${knownDevTableData[1]}" =~ "*" ]]; then
       pattern=$(echo "${knownDevTableData[1]}" | sed 's/*/.*/')
+      # shellcheck disable=SC2003
       if [[ $(expr match "${table}" "${pattern}") -eq "${#table}" ]]; then
         modules+=( "${knownDevTableData[0]}" )
-        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]]; then
+        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
           echo "${table}: ${knownDevTableData[0]}"
+        elif [[ "${exclude}" == "cms" ]] || [[ "${include}" == "dev" ]]; then
+          echo "${table}"
         fi
         knownTables+=( "${table}" )
         continue 2;
@@ -189,9 +241,9 @@ for table in "${allTables[@]}"; do
     IFS=':' read -r -a knownTestTableData <<< "${knownTestTable}"
     if [[ "${table}" == "${knownTestTableData[1]}" ]]; then
       modules+=( "${knownTestTableData[0]}" )
-      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]]; then
+      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
         echo "${table}: ${knownTestTableData[0]}"
-      elif [[ "${exclude}" == "dev" ]]; then
+      elif [[ "${exclude}" == "cms" ]] || [[ "${exclude}" == "dev" ]] || [[ "${include}" == "test" ]]; then
         echo "${table}"
       fi
       knownTables+=( "${table}" )
@@ -200,11 +252,12 @@ for table in "${allTables[@]}"; do
     # shellcheck disable=SC2076,SC2049
     if [[ "${knownTestTableData[1]}" =~ "*" ]]; then
       pattern=$(echo "${knownTestTableData[1]}" | sed 's/*/.*/')
+      # shellcheck disable=SC2003
       if [[ $(expr match "${table}" "${pattern}") -eq "${#table}" ]]; then
         modules+=( "${knownTestTableData[0]}" )
-        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]]; then
+        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
           echo "${table}: ${knownTestTableData[0]}"
-        elif [[ "${exclude}" == "dev" ]]; then
+        elif [[ "${exclude}" == "cms" ]] || [[ "${exclude}" == "dev" ]] || [[ "${include}" == "test" ]]; then
           echo "${table}"
         fi
         knownTables+=( "${table}" )
@@ -216,9 +269,9 @@ for table in "${allTables[@]}"; do
     IFS=':' read -r -a knownLiveTableData <<< "${knownLiveTable}"
     if [[ "${table}" == "${knownLiveTableData[1]}" ]]; then
       modules+=( "${knownLiveTableData[0]}" )
-      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]]; then
+      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
         echo "${table}: ${knownLiveTableData[0]}"
-      elif [[ "${exclude}" == "dev" ]] || [[ "${exclude}" == "test" ]]; then
+      elif [[ "${exclude}" == "cms" ]] || [[ "${exclude}" == "dev" ]] || [[ "${exclude}" == "test" ]] || [[ "${include}" == "live" ]]; then
         echo "${table}"
       fi
       knownTables+=( "${table}" )
@@ -227,11 +280,12 @@ for table in "${allTables[@]}"; do
     # shellcheck disable=SC2076,SC2049
     if [[ "${knownLiveTableData[1]}" =~ "*" ]]; then
       pattern=$(echo "${knownLiveTableData[1]}" | sed 's/*/.*/')
+      # shellcheck disable=SC2003
       if [[ $(expr match "${table}" "${pattern}") -eq "${#table}" ]]; then
         modules+=( "${knownLiveTableData[0]}" )
-        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]]; then
+        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
           echo "${table}: ${knownLiveTableData[0]}"
-        elif [[ "${exclude}" == "dev" ]] || [[ "${exclude}" == "test" ]]; then
+        elif [[ "${exclude}" == " cms" ]] || [[ "${exclude}" == "dev" ]] || [[ "${exclude}" == "test" ]] || [[ "${include}" == "live" ]]; then
           echo "${table}"
         fi
         knownTables+=( "${table}" )
@@ -241,7 +295,7 @@ for table in "${allTables[@]}"; do
   done
   for ingoreTable in "${ignoreTables[@]}"; do
     if [[ "${table}" == "${ingoreTable}" ]]; then
-      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]]; then
+      if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
         echo "${table}: Ignore"
       elif [[ -n "${exclude}" ]]; then
         echo "${table}"
@@ -251,8 +305,9 @@ for table in "${allTables[@]}"; do
     # shellcheck disable=SC2076,SC2049
     if [[ "${ingoreTable}" =~ "*" ]]; then
       pattern=$(echo "${ingoreTable}" | sed 's/*/.*/')
+      # shellcheck disable=SC2003
       if [[ $(expr match "${table}" "${pattern}") -eq "${#table}" ]]; then
-        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]]; then
+        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
           echo "${table}: Ignore"
         elif [[ -n "${exclude}" ]]; then
           echo "${table}"
@@ -268,7 +323,7 @@ cd "${currentPath}/lists/columns/magento${magentoVersion:0:1}"
 
 unknownColumns=( )
 
-if [[ -z "${exclude}" ]] && [[ "${#knownTables[@]}" -gt 0 ]]; then
+if [[ -z "${exclude}" ]] && [[ -z "${include}" ]] && [[ "${#knownTables[@]}" -gt 0 ]]; then
   for table in "${knownTables[@]}"; do
     allColumns=( $(mysql -B -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" "${databaseName}" --disable-column-names -e "select column_name from information_schema.columns where table_schema = \"${databaseName}\" and table_name=\"${table}\" order by column_name;") )
     for column in "${allColumns[@]}"; do
@@ -304,7 +359,7 @@ if [[ -z "${exclude}" ]] && [[ "${#knownTables[@]}" -gt 0 ]]; then
         module=$(grep -w -l -r "${table}:${column}" | cat)
       fi
       if [[ -n "${module}" ]]; then
-        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]]; then
+        if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then
           echo "${table}:${column}: ${module}"
         fi
         modules+=( "${module}" )
@@ -329,7 +384,7 @@ if [[ -z "${exclude}" ]] && [[ "${#knownTables[@]}" -gt 0 ]]; then
   done
 fi
 
-if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ "${#unknownTables[@]}" -gt 0 ]]; then
+if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]] && [[ "${#unknownTables[@]}" -gt 0 ]]; then
   if [[ "${showOnlyUnknownTables}" == 0 ]]; then
     echo ""
     echo "--- Unknown tables ---"
@@ -339,7 +394,7 @@ if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && 
   done
 fi
 
-if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ -z "${exclude}" ]] && [[ "${#unknownColumns[@]}" -gt 0 ]]; then
+if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]] && [[ "${#unknownColumns[@]}" -gt 0 ]]; then
   if [[ "${showOnlyUnknownColumns}" == 0 ]]; then
     echo ""
     echo "--- Unknown columns ---"

@@ -10,10 +10,12 @@ usage: ${scriptName} options
 OPTIONS:
   -h  Show this message
   -s  System name, default: system
-  -m  Mode (dev/test/live)
+  -m  Mode (cms/dev/test/live)
+  -o  Flag if mode tables only
   -a  Anonymizing
   -u  Upload file to Tofex server
   -r  Remove after upload
+  -k  Skip check for unknown tables
 
 Example: ${scriptName} -m dev -a -u
 EOF
@@ -25,19 +27,23 @@ trim()
 }
 
 system=
-anonymize=0
 mode=
+onlyTables=0
+anonymize=0
 upload=0
 remove=0
+skipUnknown=0
 
-while getopts hs:am:ur? option; do
+while getopts hs:m:oaurk? option; do
   case ${option} in
     h) usage; exit 1;;
     s) system=$(trim "$OPTARG");;
-    a) anonymize=1;;
     m) mode=$(trim "$OPTARG");;
+    o) onlyTables=1;;
+    a) anonymize=1;;
     u) upload=1;;
     r) remove=1;;
+    k) skipUnknown=1;;
     ?) usage; exit 1;;
   esac
 done
@@ -51,7 +57,7 @@ if [[ -z "${mode}" ]]; then
   exit 1
 fi
 
-if [[ "${mode}" != "dev" ]] && [[ "${mode}" != "test" ]] && [[ "${mode}" != "live" ]]; then
+if [[ "${mode}" != "cms" ]] && [[ "${mode}" != "dev" ]] && [[ "${mode}" != "test" ]] && [[ "${mode}" != "live" ]]; then
   usage
   exit 1
 fi
@@ -150,20 +156,15 @@ if [[ "${anonymize}" == 1 ]]; then
     fi
 fi
 
-echo "Checking for unknown tables"
-unknownTables=$("${currentPath}/tables.sh" -i -p -u | wc -l)
+if [[ "${skipUnknown}" == 0 ]]; then
+  echo "Checking for unknown tables"
+  unknownTables=$("${currentPath}/tables.sh" -i -p -u | wc -l)
 
-if [[ ${unknownTables} -gt 0 ]]; then
-  echo "Checking the database has found unknown tables! Please add them to the according Magento module."
-  exit 1
+  if [[ ${unknownTables} -gt 0 ]]; then
+    echo "Checking the database has found unknown tables! Please add them to the according Magento module."
+    exit 1
+  fi
 fi
-
-echo "Collecting tables to export without data"
-excludeTables=( $("${currentPath}/tables.sh" -i -p -e "${mode}") )
-echo "Exporting ${#excludeTables[@]} tables without data"
-
-ignore=$(printf " --ignore-table=${databaseName}.%s" "${excludeTables[@]}")
-ignore=${ignore:1}
 
 dumpPath="${currentPath}/../var/mysql/dumps"
 
@@ -172,12 +173,29 @@ mkdir -p "${dumpPath}"
 date=$(date +%Y-%m-%d)
 dumpFile=${dumpPath}/mysql-${mode}-${date}.sql
 
-export MYSQL_PWD="${databasePassword}"
-echo "Exporting table headers"
-mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --add-drop-table --no-data --skip-triggers "${databaseName}" > "${dumpFile}"
-echo "Exporting table data"
-# shellcheck disable=SC2086
-mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --events --triggers ${ignore} "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
+if [[ "${onlyTables}" == 1 ]]; then
+  echo "Collecting tables to export"
+  exportTables=( $("${currentPath}/tables.sh" -i -p -d "${mode}") )
+  echo "Exporting ${#exportTables[@]} tables"
+
+  export MYSQL_PWD="${databasePassword}"
+  echo "Exporting tables"
+  mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --max_allowed_packet=2G "${databaseName}" "${exportTables[@]}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
+else
+  echo "Collecting tables to export without data"
+  excludeTables=( $("${currentPath}/tables.sh" -i -p -e "${mode}") )
+  echo "Exporting ${#excludeTables[@]} tables without data"
+
+  ignore=$(printf " --ignore-table=${databaseName}.%s" "${excludeTables[@]}")
+  ignore=${ignore:1}
+
+  export MYSQL_PWD="${databasePassword}"
+  echo "Exporting table headers"
+  mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --add-drop-table --no-data --skip-triggers "${databaseName}" > "${dumpFile}"
+  echo "Exporting table data"
+  # shellcheck disable=SC2086
+  mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --events --triggers ${ignore} "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
+fi
 
 if [[ "${anonymize}" == "1" ]]; then
   echo "Anonymizing table data"

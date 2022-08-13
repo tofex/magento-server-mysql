@@ -1,6 +1,6 @@
 {
   "name": "tofex/magento-server-mysql",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "type": "magento-server-component",
   "description": "Tofex Magento Server MySQL",
   "license": "MIT",
