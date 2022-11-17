@@ -398,12 +398,8 @@ variable:dev
 variable_value:dev
 vault_payment_token:test
 vault_payment_token_order_payment_link:test
-vertex_commodity_code_order_item:code
-vertex_commodity_code_order_item:order_item_id
-vertex_commodity_code_order_item:type
-vertex_commodity_code_product:code
-vertex_commodity_code_product:product_id
-vertex_commodity_code_product:type
+vertex_commodity_code_order_item:test
+vertex_commodity_code_product:dev
 vertex_commodity_code_order_item:test
 vertex_commodity_code_product:dev
 vertex_custom_option_flex_field:dev
