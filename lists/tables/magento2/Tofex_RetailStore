@@ -5,3 +5,4 @@ retail_store_entity_int:dev
 retail_store_entity_text:dev
 retail_store_entity_varchar:dev
 retail_store_feature:dev
+retail_store_location:dev

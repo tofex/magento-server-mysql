@@ -36,4 +36,7 @@ retail_store_feature:id
 retail_store_feature:image
 retail_store_feature:name
 retail_store_feature:status
+retail_store_location:key
+retail_store_location:location
+retail_store_location:location_id
 sales_order:retail_store_id
