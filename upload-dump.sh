@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -10,7 +11,7 @@ usage: ${scriptName} options
 OPTIONS:
   -h  Show this message
   -m  Mode (dev/test/live)
-  -d  Date of the file
+  -d  Date of the file, default: current date
 
 Example: ${scriptName} -m dev -d 2018-06-05
 EOF
@@ -25,23 +26,14 @@ system=
 date=
 mode=
 
-while getopts hs:m:d:? option; do
-  case "${option}" in
-    h) usage; exit 1;;
-    s) system=$(trim "$OPTARG");;
-    m) mode=$(trim "$OPTARG");;
-    d) date=$(trim "$OPTARG");;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
 
 if [[ -z "${system}" ]]; then
   system="system"
-fi
-
-if [[ -z "${date}" ]]; then
-  usage
-  exit 1
 fi
 
 if [[ -z "${mode}" ]]; then
@@ -49,7 +41,9 @@ if [[ -z "${mode}" ]]; then
   exit 1
 fi
 
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [[ -z "${date}" ]]; then
+  date=$(date +%Y-%m-%d)
+fi
 
 if [ ! -f "${currentPath}/../env.properties" ]; then
   echo "No environment specified!"

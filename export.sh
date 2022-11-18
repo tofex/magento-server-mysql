@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -8,36 +9,30 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -s  System name (i.e. wordpress), default: system
-  -u  Upload file to Tofex server
+  --help    Show this message
+  --system  System name (i.e. wordpress), default: system
+  --upload  Upload file to Tofex server, default: no
 
-Example: ${scriptName} -m dev -u
+Example: ${scriptName} --upload
 EOF
 }
 
-trim()
-{
-  echo -n "$1" | xargs
-}
-
 system=
-upload=0
+upload=
 
-while getopts hs:u? option; do
-  case "${option}" in
-    h) usage; exit 1;;
-    s) system=$(trim "$OPTARG");;
-    u) upload=1;;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
 
 if [[ -z "${system}" ]]; then
   system="system"
 fi
 
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [[ -z "${upload}" ]]; then
+  upload="no"
+fi
 
 if [[ ! -f "${currentPath}/../env.properties" ]]; then
   echo "No environment specified!"
@@ -108,8 +103,13 @@ rm -rf "${dumpFile}"
 touch "${dumpFile}"
 
 export MYSQL_PWD="${databasePassword}"
-mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --add-drop-table --no-data --skip-triggers "${databaseName}" >>"${dumpFile}"
-mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --events --routines --triggers "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^ALTER\sDATABASE/d' >>"${dumpFile}"
+
+echo "Exporting table headers"
+mysqldump -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --add-drop-table --no-data --skip-triggers "${databaseName}" > "${dumpFile}"
+
+echo "Exporting table data"
+# shellcheck disable=SC2086
+mysqldump -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --events --routines --triggers "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
 
 cd "${dumpPath}"
 rm -rf "${dumpFile}.gz"
@@ -117,5 +117,5 @@ dumpFileName=$(basename "${dumpFile}")
 gzip "${dumpFileName}"
 
 if [[ ${upload} == 1 ]]; then
-  "${currentPath}/upload-dump.sh" -s "${system}" -m "${system}" -d "${date}"
+  "${currentPath}/upload-dump.sh" --system "${system}" --mode "${system}" --date "${date}"
 fi

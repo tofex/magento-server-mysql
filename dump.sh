@@ -65,7 +65,7 @@ if [[ "${mode}" == "live" ]]; then
   anonymize=0
 fi
 
-if [[ ! -f ${currentPath}/../env.properties ]]; then
+if [[ ! -f "${currentPath}/../env.properties" ]]; then
   echo "No environment specified!"
   exit 1
 fi
@@ -132,8 +132,8 @@ fi
 anonymizeDatabase=
 anonymizeDatabaseHost=
 for server in "${serverList[@]}"; do
-  databaseAnonymize=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "databaseAnonymize")
-  if [[ -n "${databaseAnonymize}" ]]; then
+  anonymizeDatabase=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "databaseAnonymize")
+  if [[ -n "${anonymizeDatabase}" ]]; then
     serverType=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
     if [[ "${serverType}" == "local" ]]; then
       anonymizeDatabaseHost="localhost"
@@ -150,11 +150,13 @@ anonymizeDatabasePort=
 anonymizeDatabaseUser=
 anonymizeDatabasePassword=
 anonymizeDatabaseName=
+anonymizeDatabaseReset="no"
 if [[ -n "${anonymizeDatabase}" ]]; then
   anonymizeDatabasePort=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "port")
   anonymizeDatabaseUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "user")
   anonymizeDatabasePassword=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "password")
   anonymizeDatabaseName=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "name")
+  anonymizeDatabaseReset=$(ini-parse "${currentPath}/../env.properties" "no" "${anonymizeDatabase}" "reset")
 fi
 
 if [[ "${anonymize}" == 1 ]]; then
@@ -181,7 +183,7 @@ if [[ "${skipUnknown}" == 0 ]]; then
   echo "Checking for unknown tables"
   unknownTables=$("${currentPath}/tables.sh" -i -p -u | wc -l)
 
-  if [[ ${unknownTables} -gt 0 ]]; then
+  if [[ "${unknownTables}" -gt 0 ]]; then
     echo "Checking the database has found unknown tables! Please add them to the according Magento module."
     exit 1
   fi
@@ -192,7 +194,7 @@ dumpPath="${currentPath}/../var/mysql/dumps"
 mkdir -p "${dumpPath}"
 
 date=$(date +%Y-%m-%d)
-dumpFile=${dumpPath}/mysql-${mode}-${date}.sql
+dumpFile="${dumpPath}/mysql-${mode}-${date}.sql"
 
 if [[ "${onlyTables}" == 1 ]]; then
   echo "Collecting tables to export"
@@ -228,9 +230,10 @@ if [[ "${anonymize}" == "1" ]]; then
       --date "${date}" \
       --databaseHost "${anonymizeDatabaseHost}" \
       --databasePort "${anonymizeDatabasePort}" \
-      --databaseUserName "${anonymizeDatabaseUser}" \
+      --databaseUser "${anonymizeDatabaseUser}" \
       --databasePassword "${anonymizeDatabasePassword}" \
-      --databaseName "${anonymizeDatabaseName}"
+      --databaseName "${anonymizeDatabaseName}" \
+      --reset "${anonymizeDatabaseReset}"
   else
     "${currentPath}/upload.sh" \
       --mode "${mode}" \
@@ -243,7 +246,7 @@ if [[ "${anonymize}" == "1" ]]; then
     "${currentPath}/anonymize.sh" \
       --databaseHost "${anonymizeDatabaseHost}" \
       --databasePort "${anonymizeDatabasePort}" \
-      --databaseUserName "${anonymizeDatabaseUser}" \
+      --databaseUser "${anonymizeDatabaseUser}" \
       --databasePassword "${anonymizeDatabasePassword}" \
       --databaseName "${anonymizeDatabaseName}"
   else
@@ -256,9 +259,10 @@ if [[ "${anonymize}" == "1" ]]; then
       --dumpFile "${dumpFile}" \
       --databaseHost "${anonymizeDatabaseHost}" \
       --databasePort "${anonymizeDatabasePort}" \
-      --databaseUserName "${anonymizeDatabaseUser}" \
+      --databaseUser "${anonymizeDatabaseUser}" \
       --databasePassword "${anonymizeDatabasePassword}" \
-      --databaseName "${anonymizeDatabaseName}"
+      --databaseName "${anonymizeDatabaseName}" \
+      --remove "${anonymizeDatabaseReset}"
   else
     "${currentPath}/download.sh" \
       --dumpFile "${dumpFile}" \
@@ -272,9 +276,9 @@ rm -rf "${dumpFile}.gz"
 echo "Creating archive: ${dumpFile}.gz"
 gzip "$(basename "${dumpFile}")"
 
-if [[ ${upload} == 1 ]]; then
+if [[ "${upload}" == 1 ]]; then
   echo "Uploading created archive"
-  "${currentPath}/upload-dump.sh" --m "${mode}" -d "${date}"
+  "${currentPath}/upload-dump.sh" --system "${system}" --mode "${mode}" --date "${date}"
 
   if [[ "${remove}" == 1 ]]; then
     echo "Removing created archive: ${dumpFile}.gz"
