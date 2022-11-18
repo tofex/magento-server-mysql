@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -8,16 +9,16 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -s  System name, default: system
-  -m  Mode (cms/dev/test/live)
-  -o  Flag if mode tables only
-  -a  Anonymizing
-  -u  Upload file to Tofex server
-  -r  Remove after upload
-  -k  Skip check for unknown tables
+  --help         Show this message
+  --system       System name, default: system
+  --mode         Mode (cms/dev/test/live)
+  --onlyTables   Flag if mode tables only
+  --anonymize    Anonymizing
+  --upload       Upload file to Tofex server
+  --remove       Remove after upload
+  --skipUnknown  Skip check for unknown tables
 
-Example: ${scriptName} -m dev -a -u
+Example: ${scriptName} --mode dev --upload --remove
 EOF
 }
 
@@ -34,19 +35,11 @@ upload=0
 remove=0
 skipUnknown=0
 
-while getopts hs:m:oaurk? option; do
-  case ${option} in
-    h) usage; exit 1;;
-    s) system=$(trim "$OPTARG");;
-    m) mode=$(trim "$OPTARG");;
-    o) onlyTables=1;;
-    a) anonymize=1;;
-    u) upload=1;;
-    r) remove=1;;
-    k) skipUnknown=1;;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
 
 if [[ -z "${system}" ]]; then
   system="system"
@@ -71,8 +64,6 @@ if [[ "${mode}" == "live" ]]; then
   echo "Live mode prohibits anonymizing"
   anonymize=0
 fi
-
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [[ ! -f ${currentPath}/../env.properties ]]; then
   echo "No environment specified!"
@@ -138,7 +129,36 @@ if [ -z "${databaseName}" ]; then
   exit 1
 fi
 
+anonymizeDatabase=
+anonymizeDatabaseHost=
+for server in "${serverList[@]}"; do
+  databaseAnonymize=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "databaseAnonymize")
+  if [[ -n "${databaseAnonymize}" ]]; then
+    serverType=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
+    if [[ "${serverType}" == "local" ]]; then
+      anonymizeDatabaseHost="localhost"
+      echo "--- Anonymizing database on local server: ${server} ---"
+    else
+      anonymizeDatabaseHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
+      echo "--- Anonymizing database on remote server: ${server} ---"
+    fi
+    break
+  fi
+done
+
+anonymizeDatabasePort=
+anonymizeDatabaseUser=
+anonymizeDatabasePassword=
+anonymizeDatabaseName=
+if [[ -n "${anonymizeDatabase}" ]]; then
+  anonymizeDatabasePort=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "port")
+  anonymizeDatabaseUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "user")
+  anonymizeDatabasePassword=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "password")
+  anonymizeDatabaseName=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "name")
+fi
+
 if [[ "${anonymize}" == 1 ]]; then
+  if [[ -z "${anonymizeDatabaseHost}" ]] || [[ "${anonymizeDatabaseHost}" == "35.198.181.44" ]]; then
     echo "Please specify access token to SQL, followed by [ENTER]:"
     read -r accessToken
 
@@ -148,12 +168,13 @@ if [[ "${anonymize}" == 1 ]]; then
     access=$(curl --header "Authorization: Bearer ${accessToken}" -X GET https://www.googleapis.com/sql/v1beta4/projects/optimal-relic-240610/instances/projekte?fields=settings 2>/dev/null | jq .settings.ipConfiguration | grep "${remoteIpAddress}" | wc -l)
 
     if [[ "${access}" -eq 0 ]]; then
-        echo "Granting access of IP address: ${remoteIpAddress} to Cloud SQL"
-        settings=$(curl --header "Authorization: Bearer ${accessToken}" -X GET https://www.googleapis.com/sql/v1beta4/projects/optimal-relic-240610/instances/projekte?fields=settings 2>/dev/null | jq .settings.ipConfiguration | jq ".authorizedNetworks[.authorizedNetworks| length] |= . + {\"value\":\"${remoteIpAddress}\",\"name\":\"${projectId}\",\"kind\":\"sql#aclEntry\"}")
-        curl --header "Authorization: Bearer ${accessToken}" --header "Content-Type: application/json" --data "{\"settings\":{\"ipConfiguration\":${settings}}}" -X PATCH https://www.googleapis.com/sql/v1beta4/projects/optimal-relic-240610/instances/projekte
+      echo "Granting access of IP address: ${remoteIpAddress} to Cloud SQL"
+      settings=$(curl --header "Authorization: Bearer ${accessToken}" -X GET https://www.googleapis.com/sql/v1beta4/projects/optimal-relic-240610/instances/projekte?fields=settings 2>/dev/null | jq .settings.ipConfiguration | jq ".authorizedNetworks[.authorizedNetworks| length] |= . + {\"value\":\"${remoteIpAddress}\",\"name\":\"${projectId}\",\"kind\":\"sql#aclEntry\"}")
+      curl --header "Authorization: Bearer ${accessToken}" --header "Content-Type: application/json" --data "{\"settings\":{\"ipConfiguration\":${settings}}}" -X PATCH https://www.googleapis.com/sql/v1beta4/projects/optimal-relic-240610/instances/projekte
     else
-        echo "Access of IP address: ${remoteIpAddress} to Cloud SQL already granted"
+      echo "Access of IP address: ${remoteIpAddress} to Cloud SQL already granted"
     fi
+  fi
 fi
 
 if [[ "${skipUnknown}" == 0 ]]; then
@@ -201,9 +222,49 @@ if [[ "${anonymize}" == "1" ]]; then
   echo "Anonymizing table data"
   tempDatabaseName=$(printf '%s' "${databaseName}-${mode}-${date}" | md5sum | cut -d ' ' -f 1)
 
-  "${currentPath}/upload.sh" -m "${mode}" -d "${date}" -n "${tempDatabaseName}"
-  "${currentPath}/anonymize.sh" -n "${tempDatabaseName}"
-  "${currentPath}/download.sh" -n "${tempDatabaseName}" -f "${dumpFile}" -r
+  if [[ -n "${anonymizeDatabaseHost}" ]]; then
+    "${currentPath}/upload.sh" \
+      --mode "${mode}" \
+      --date "${date}" \
+      --databaseHost "${anonymizeDatabaseHost}" \
+      --databasePort "${anonymizeDatabasePort}" \
+      --databaseUserName "${anonymizeDatabaseUser}" \
+      --databasePassword "${anonymizeDatabasePassword}" \
+      --databaseName "${anonymizeDatabaseName}"
+  else
+    "${currentPath}/upload.sh" \
+      --mode "${mode}" \
+      --date "${date}" \
+      --databaseName "${tempDatabaseName}" \
+      --reset yes
+  fi
+
+  if [[ -n "${anonymizeDatabaseHost}" ]]; then
+    "${currentPath}/anonymize.sh" \
+      --databaseHost "${anonymizeDatabaseHost}" \
+      --databasePort "${anonymizeDatabasePort}" \
+      --databaseUserName "${anonymizeDatabaseUser}" \
+      --databasePassword "${anonymizeDatabasePassword}" \
+      --databaseName "${anonymizeDatabaseName}"
+  else
+    "${currentPath}/anonymize.sh" \
+      --databaseName "${tempDatabaseName}"
+  fi
+
+  if [[ -n "${anonymizeDatabaseHost}" ]]; then
+    "${currentPath}/download.sh" \
+      --dumpFile "${dumpFile}" \
+      --databaseHost "${anonymizeDatabaseHost}" \
+      --databasePort "${anonymizeDatabasePort}" \
+      --databaseUserName "${anonymizeDatabaseUser}" \
+      --databasePassword "${anonymizeDatabasePassword}" \
+      --databaseName "${anonymizeDatabaseName}"
+  else
+    "${currentPath}/download.sh" \
+      --dumpFile "${dumpFile}" \
+      --databaseName "${tempDatabaseName}" \
+      --remove yes
+  fi
 fi
 
 cd "${dumpPath}"
@@ -213,7 +274,7 @@ gzip "$(basename "${dumpFile}")"
 
 if [[ ${upload} == 1 ]]; then
   echo "Uploading created archive"
-  "${currentPath}/upload-dump.sh" -m "${mode}" -d "${date}"
+  "${currentPath}/upload-dump.sh" --m "${mode}" -d "${date}"
 
   if [[ "${remove}" == 1 ]]; then
     echo "Removing created archive: ${dumpFile}.gz"

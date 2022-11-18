@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -8,33 +9,34 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -d  Date of the file
-  -m  Mode (dev/test)
-  -n  Name of database to import to
+  --help              Show this message
+  --mode              Mode (dev/test/live)
+  --date              Date of the file, default: current date
+  --databaseHost      Host name of database, default: 35.198.181.44
+  --databasePort      Port of database, default: 3306
+  --databaseUser      User name of database, default: projekte
+  --databasePassword  Password of database, default: projekte
+  --databaseName      Name of database to import to
+  --reset             Drop current database and re-create it (yes/no), default: no
 
-Example: ${scriptName} -m dev -d 2018-06-05 -n magento
+Example: ${scriptName} --mode dev --date 2018-06-05 --databaseName magento
 EOF
 }
 
-trim()
-{
-  echo -n "$1" | xargs
-}
-
-date=
 mode=
+date=
+databaseHost=
+databasePort=
+databaseUser=
+databasePassword=
 databaseName=
+reset=
 
-while getopts hd:m:n:? option; do
-  case ${option} in
-    h) usage; exit 1;;
-    d) date=$(trim "$OPTARG");;
-    m) mode=$(trim "$OPTARG");;
-    n) databaseName=$(trim "$OPTARG");;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
 
 if [[ -z "${mode}" ]]; then
   echo "No mode defined!"
@@ -42,8 +44,23 @@ if [[ -z "${mode}" ]]; then
 fi
 
 if [[ -z "${date}" ]]; then
-  echo "No date defined!"
-  exit 1
+  date=$(date +%Y-%m-%d)
+fi
+
+if [[ -z "${databaseHost}" ]]; then
+  databaseHost="35.198.181.44"
+fi
+
+if [[ -z "${databasePort}" ]]; then
+  databasePort="3306"
+fi
+
+if [[ -z "${databaseUser}" ]]; then
+  databaseUser="projekte"
+fi
+
+if [[ -z "${databasePassword}" ]]; then
+  databasePassword="projekte"
 fi
 
 if [[ -z "${databaseName}" ]]; then
@@ -51,36 +68,59 @@ if [[ -z "${databaseName}" ]]; then
   exit 1
 fi
 
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [[ -z "${reset}" ]]; then
+  reset="no"
+fi
 
 dumpPath="${currentPath}/../var/mysql/dumps"
 
-cd "${dumpPath}"
+importSourceName="mysql-${mode}-${date}"
 
-importSource=mysql-${mode}-${date}.sql
+deleteExtracted=0
 
-if [[ ! -f "${importSource}" ]]; then
-  echo "Invalid import source: ${importSource}!"
+if [[ ! -f "${dumpPath}/${importSourceName}.sql" ]]; then
+  if [[ -f "${dumpPath}/${importSourceName}.tar.gz" ]]; then
+    echo "Extracting file at: ${dumpPath}/${importSourceName}.sql from: ${dumpPath}/${importSourceName}.tar.gz"
+    tar -xOzf "${dumpPath}/${importSourceName}.tar.gz" > "${dumpPath}/${importSourceName}.sql"
+    deleteExtracted=1
+  elif [[ -f "${dumpPath}/${importSourceName}.sql.gz" ]]; then
+    echo "Extracting file at: ${dumpPath}/${importSourceName}.sql from: ${dumpPath}/${importSourceName}.sql.gz"
+    cat "${dumpPath}/${importSourceName}.sql.gz" | gzip -d -q > "${dumpPath}/${importSourceName}.sql"
+    deleteExtracted=1
+  elif [[ -f "${dumpPath}/${importSourceName}.zip" ]]; then
+    echo "Extracting file at: ${dumpPath}/${importSourceName}.sql from: ${dumpPath}/${importSourceName}.zip"
+    deleteExtracted=1
+    unzip -p "${dumpPath}/${importSourceName}.zip" > "${dumpPath}/${importSourceName}.sql"
+  fi
+fi
+
+if [[ ! -f "${dumpPath}/${importSourceName}.sql" ]]; then
+  echo "Invalid import source: ${dumpPath}/${importSourceName}.sql!"
   exit 1
 fi
 
-echo "Preparing upload"
-cat "${importSource}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e '/^ALTER\sDATABASE/d' > upload.sql
+cd "${dumpPath}"
 
-databaseHostName="35.198.181.44"
-databasePort="3306"
-databaseUserName="projekte"
-databasePassword="projekte"
+echo "Preparing upload at: ${dumpPath}/upload.sql"
+cat "${importSourceName}.sql" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^DROP\sDATABASE/d' | sed -e '/^USE\s/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' > upload.sql
 
 export MYSQL_PWD="${databasePassword}"
 
-echo "Dropping database: ${databaseName}"
-mysql -h${databaseHostName} -P${databasePort:-3306} -u${databaseUserName} -e "DROP DATABASE IF EXISTS \`${databaseName}\`;"
+if [[ "${reset}" == "yes" ]]; then
+  echo "Dropping database: ${databaseName}"
+  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" -e "DROP DATABASE IF EXISTS \`${databaseName}\`;"
 
-echo "Creating database: ${databaseName}"
-mysql -h${databaseHostName} -P${databasePort:-3306} -u${databaseUserName} -e "CREATE DATABASE \`${databaseName}\` CHARACTER SET utf8 COLLATE utf8_general_ci;";
+  echo "Creating database: ${databaseName}"
+  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" -e "CREATE DATABASE \`${databaseName}\` CHARACTER SET utf8 COLLATE utf8_general_ci;";
+fi
 
 echo "Uploading to database: ${databaseName}"
-mysql -h${databaseHostName} -P${databasePort:-3306} -u${databaseUserName} --init-command="SET SESSION FOREIGN_KEY_CHECKS=0;" "${databaseName}" < upload.sql
+mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" --init-command="SET SESSION FOREIGN_KEY_CHECKS=0;" "${databaseName}" < upload.sql
 
+if [[ "${deleteExtracted}" == 1 ]]; then
+  echo "Removing extracted file at: ${dumpPath}/${importSourceName}.sql"
+  rm -rf "${dumpPath}/${importSourceName}.sql"
+fi
+
+echo "Removing prepared upload at: ${dumpPath}/upload.sql"
 rm -rf upload.sql

@@ -52,7 +52,7 @@ BEGIN
     -- all names
     IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'customer_entity' AND COLUMN_NAME = 'firstname') THEN
         UPDATE customer_entity SET firstname = CONCAT('Vorname-', entity_id);
-        UPDATE customer_entity SET middlename = CONCAT('Zweiter-Vorname-', entity_id) WHERE middlename IS NOT NULL AND middlename <> "";
+        UPDATE customer_entity SET middlename = CONCAT('Zweiter-Vorname-', entity_id) WHERE middlename IS NOT NULL AND middlename <> '';
         UPDATE customer_entity SET lastname = CONCAT('Nachname-', entity_id);
         UPDATE customer_entity SET dob = '1990-04-08' WHERE dob IS NOT NULL;
     END IF;
@@ -69,16 +69,16 @@ BEGIN
     -- address
     IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'customer_address_entity' AND COLUMN_NAME = 'firstname') THEN
         UPDATE customer_address_entity SET city = 'Jena';
-        UPDATE customer_address_entity SET company = 'Tofex UG' WHERE company IS NOT NULL AND company <> "";
-        UPDATE customer_address_entity SET fax = '03641/55987-59' WHERE fax IS NOT NULL AND fax <> "";
+        UPDATE customer_address_entity SET company = 'Tofex UG' WHERE company IS NOT NULL AND company <> '';
+        UPDATE customer_address_entity SET fax = '03641/55987-59' WHERE fax IS NOT NULL AND fax <> '';
         UPDATE customer_address_entity SET firstname = CONCAT('Vorname-', entity_id);
         UPDATE customer_address_entity SET lastname = CONCAT('Nachname-', entity_id);
-        UPDATE customer_address_entity SET middlename = CONCAT('Zweiter-Vorname-', entity_id) WHERE middlename IS NOT NULL AND middlename <> "";
+        UPDATE customer_address_entity SET middlename = CONCAT('Zweiter-Vorname-', entity_id) WHERE middlename IS NOT NULL AND middlename <> '';
         UPDATE customer_address_entity SET postcode = '07743';
-        UPDATE customer_address_entity SET region = 'THU' WHERE region IS NOT NULL AND region <> "";
+        UPDATE customer_address_entity SET region = 'THU' WHERE region IS NOT NULL AND region <> '';
         UPDATE customer_address_entity SET street = 'Unterm Markt 2';
-        UPDATE customer_address_entity SET telephone = '03641/55987-40' WHERE telephone IS NOT NULL AND telephone <> "";
-        UPDATE customer_address_entity SET vat_id = 'DE1234567890' WHERE vat_id IS NOT NULL AND vat_id <> "";
+        UPDATE customer_address_entity SET telephone = '03641/55987-40' WHERE telephone IS NOT NULL AND telephone <> '';
+        UPDATE customer_address_entity SET vat_id = 'DE1234567890' WHERE vat_id IS NOT NULL AND vat_id <> '';
     END IF;
     UPDATE customer_address_entity_text SET value = 'Unterm Markt 2' WHERE attribute_id in (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'street' AND entity_type_id IN (SELECT entity_type_id FROM eav_entity_type WHERE entity_type_code = 'customer_address')) AND NOT(value IS NULL or value = '');
     UPDATE customer_address_entity_varchar SET value = '07743' WHERE attribute_id in (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'postcode' AND entity_type_id IN (SELECT entity_type_id FROM eav_entity_type WHERE entity_type_code = 'customer_address')) AND NOT(value IS NULL or value = '');
@@ -112,7 +112,7 @@ BEGIN
         UPDATE customer_grid_flat SET billing_country_id = 'DE' WHERE billing_country_id IS NOT NULL AND billing_country_id <> '';
         UPDATE customer_grid_flat SET billing_region = 'Thüringen' WHERE billing_region IS NOT NULL AND billing_region <> '';
         IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'customer_grid_flat' AND COLUMN_NAME = 'billing_region_id') THEN
-            UPDATE customer_grid_flat SET billing_region_id = 94 WHERE billing_region_id IS NOT NULL AND billing_region_id <> '';
+            UPDATE customer_grid_flat SET billing_region_id = 94 WHERE billing_region_id IS NOT NULL;
         END IF;
         UPDATE customer_grid_flat SET billing_street = 'Unterm Markt 2' WHERE billing_street IS NOT NULL AND billing_street <> '';
         UPDATE customer_grid_flat SET billing_city = 'Jena' WHERE billing_city IS NOT NULL AND billing_city <> '';
@@ -263,9 +263,37 @@ BEGIN
         UPDATE sales_order_address SET email = CONCAT('gast-', parent_id, '@localhost.local') WHERE NOT email IS NULL AND customer_id IS NULL;
         -- names
         UPDATE sales_creditmemo_grid JOIN sales_order ON sales_order.entity_id = sales_creditmemo_grid.order_id SET billing_name = CONCAT('Vorname-', customer_id, ' Nachname-', customer_id) WHERE sales_order.customer_id IS NOT NULL;
-        UPDATE sales_creditmemo_grid JOIN sales_order ON sales_order.entity_id = sales_creditmemo_grid.order_id SET billing_name = CONCAT('Gast-Vorname-', order_id, ' Gast-Nachname-', order_id) WHERE sales_order.customer_id IS NULL;
-        UPDATE sales_invoice_grid JOIN sales_order ON sales_order.entity_id = sales_invoice_grid.order_id SET billing_name = CONCAT('Vorname-', customer_id, ' Nachname-', customer_id) WHERE sales_order.customer_id IS NOT NULL;
-        UPDATE sales_invoice_grid JOIN sales_order ON sales_order.entity_id = sales_invoice_grid.order_id SET billing_name = CONCAT('Gast-Vorname-', order_id, ' Gast-Nachname-', order_id) WHERE sales_order.customer_id IS NULL;
+        UPDATE sales_creditmemo_grid JOIN sales_order ON sales_order.entity_id = sales_creditmemo_grid.order_id SET billing_name = CONCAT('Gast-Vorname-', sales_creditmemo_grid.order_id, ' Gast-Nachname-', sales_creditmemo_grid.order_id) WHERE sales_order.customer_id IS NULL;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_creditmemo_grid' AND COLUMN_NAME = 'customer_name') THEN
+            UPDATE sales_creditmemo_grid JOIN sales_order ON sales_order.entity_id = sales_creditmemo_grid.order_id SET customer_name = CONCAT('Vorname-', sales_order.customer_id, ' Nachname-', sales_order.customer_id) WHERE sales_order.customer_id IS NOT NULL;
+            UPDATE sales_creditmemo_grid JOIN sales_order ON sales_order.entity_id = sales_creditmemo_grid.order_id SET customer_name = CONCAT('Gast-Vorname-', sales_creditmemo_grid.order_id, ' Gast-Nachname-', sales_creditmemo_grid.order_id) WHERE sales_order.customer_id IS NULL;
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_creditmemo_grid' AND COLUMN_NAME = 'customer_email') THEN
+            UPDATE sales_creditmemo_grid JOIN sales_order ON sales_order.entity_id = sales_creditmemo_grid.order_id SET sales_creditmemo_grid.customer_email = CONCAT('kunde-', sales_order.customer_id, '@localhost.local') WHERE sales_order.customer_id IS NOT NULL;
+            UPDATE sales_creditmemo_grid JOIN sales_order ON sales_order.entity_id = sales_creditmemo_grid.order_id SET sales_creditmemo_grid.customer_email = CONCAT('gast-', sales_creditmemo_grid.order_id, '@localhost.local') WHERE sales_order.customer_id IS NULL;
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_creditmemo_grid' AND COLUMN_NAME = 'billing_address') THEN
+            UPDATE sales_creditmemo_grid SET billing_address = 'Unterm Markt 2 07743 Jena';
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_creditmemo_grid' AND COLUMN_NAME = 'shipping_address') THEN
+            UPDATE sales_creditmemo_grid SET shipping_address = 'Unterm Markt 2 07743 Jena';
+        END IF;
+        UPDATE sales_invoice_grid JOIN sales_order ON sales_order.entity_id = sales_invoice_grid.order_id SET billing_name = CONCAT('Vorname-', customer_id, ' Nachname-', sales_order.customer_id) WHERE sales_order.customer_id IS NOT NULL;
+        UPDATE sales_invoice_grid JOIN sales_order ON sales_order.entity_id = sales_invoice_grid.order_id SET billing_name = CONCAT('Gast-Vorname-', sales_invoice_grid.order_id, ' Gast-Nachname-', sales_invoice_grid.order_id) WHERE sales_order.customer_id IS NULL;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_invoice_grid' AND COLUMN_NAME = 'customer_name') THEN
+            UPDATE sales_invoice_grid JOIN sales_order ON sales_order.entity_id = sales_invoice_grid.order_id SET customer_name = CONCAT('Vorname-', customer_id, ' Nachname-', sales_order.customer_id) WHERE sales_order.customer_id IS NOT NULL;
+            UPDATE sales_invoice_grid JOIN sales_order ON sales_order.entity_id = sales_invoice_grid.order_id SET customer_name = CONCAT('Gast-Vorname-', sales_invoice_grid.order_id, ' Gast-Nachname-', sales_invoice_grid.order_id) WHERE sales_order.customer_id IS NULL;
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_invoice_grid' AND COLUMN_NAME = 'customer_email') THEN
+            UPDATE sales_invoice_grid JOIN sales_order ON sales_order.entity_id = sales_invoice_grid.order_id SET sales_invoice_grid.customer_email = CONCAT('kunde-', sales_order.customer_id, '@localhost.local') WHERE sales_order.customer_id IS NOT NULL;
+            UPDATE sales_invoice_grid JOIN sales_order ON sales_order.entity_id = sales_invoice_grid.order_id SET sales_invoice_grid.customer_email = CONCAT('gast-', sales_invoice_grid.order_id, '@localhost.local') WHERE sales_order.customer_id IS NULL;
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_invoice_grid' AND COLUMN_NAME = 'billing_address') THEN
+            UPDATE sales_invoice_grid SET billing_address = 'Unterm Markt 2 07743 Jena';
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_invoice_grid' AND COLUMN_NAME = 'shipping_address') THEN
+            UPDATE sales_invoice_grid SET shipping_address = 'Unterm Markt 2 07743 Jena';
+        END IF;
         UPDATE sales_order SET customer_firstname = CONCAT('Vorname-', customer_id) WHERE NOT customer_firstname IS NULL AND customer_id IS NOT NULL;
         UPDATE sales_order SET customer_firstname = CONCAT('Gast-Vorname-', entity_id) WHERE NOT customer_firstname IS NULL AND customer_id IS NULL;
         UPDATE sales_order SET customer_middlename = CONCAT('Zweiter-Vorname-', customer_id) WHERE NOT customer_middlename IS NULL AND customer_id IS NOT NULL;
@@ -282,10 +310,42 @@ BEGIN
         UPDATE sales_order_grid JOIN sales_order ON sales_order.increment_id = sales_order_grid.increment_id SET billing_name = CONCAT('Gast-Vorname-', sales_order.entity_id, ' Gast-Nachname-', sales_order.entity_id) WHERE sales_order.customer_id IS NULL;
         UPDATE sales_order_grid JOIN sales_order ON sales_order.increment_id = sales_order_grid.increment_id SET shipping_name = CONCAT('Vorname-', sales_order.customer_id, ' Nachname-', sales_order.customer_id) WHERE sales_order.customer_id IS NOT NULL;
         UPDATE sales_order_grid JOIN sales_order ON sales_order.increment_id = sales_order_grid.increment_id SET shipping_name = CONCAT('Gast-Vorname-', sales_order.entity_id, ' Gast-Nachname-', sales_order.entity_id) WHERE sales_order.customer_id IS NULL;
-        UPDATE sales_order_payment JOIN sales_order ON sales_order.entity_id = sales_order_payment.parent_id SET cc_owner = CONCAT('Vorname-', customer_id, ' Nachname-', customer_id) WHERE NOT(cc_owner IS NULL OR cc_owner = '') AND sales_order.customer_id IS NOT NULL;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_order_grid' AND COLUMN_NAME = 'customer_name') THEN
+            UPDATE sales_order_grid JOIN sales_order ON sales_order.increment_id = sales_order_grid.increment_id SET customer_name = CONCAT('Vorname-', sales_order.customer_id, ' Nachname-', sales_order.customer_id) WHERE sales_order.customer_id IS NOT NULL;
+            UPDATE sales_order_grid JOIN sales_order ON sales_order.increment_id = sales_order_grid.increment_id SET customer_name = CONCAT('Gast-Vorname-', sales_order.entity_id, ' Gast-Nachname-', sales_order.entity_id) WHERE sales_order.customer_id IS NULL;
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_order_grid' AND COLUMN_NAME = 'customer_email') THEN
+            UPDATE sales_order_grid JOIN sales_order ON sales_order.increment_id = sales_order_grid.increment_id SET sales_order_grid.customer_email = CONCAT('kunde-', sales_order.customer_id, '@localhost.local') WHERE sales_order.customer_id IS NOT NULL;
+            UPDATE sales_order_grid JOIN sales_order ON sales_order.increment_id = sales_order_grid.increment_id SET sales_order_grid.customer_email = CONCAT('gast-', sales_order.entity_id, '@localhost.local') WHERE sales_order.customer_id IS NULL;
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_order_grid' AND COLUMN_NAME = 'billing_address') THEN
+            UPDATE sales_order_grid SET billing_address = 'Unterm Markt 2 07743 Jena';
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_order_grid' AND COLUMN_NAME = 'shipping_address') THEN
+            UPDATE sales_order_grid SET shipping_address = 'Unterm Markt 2 07743 Jena';
+        END IF;
+        UPDATE sales_order_payment JOIN sales_order ON sales_order.entity_id = sales_order_payment.parent_id SET cc_owner = CONCAT('Vorname-', sales_order.customer_id, ' Nachname-', sales_order.customer_id) WHERE NOT(cc_owner IS NULL OR cc_owner = '') AND sales_order.customer_id IS NOT NULL;
         UPDATE sales_order_payment JOIN sales_order ON sales_order.entity_id = sales_order_payment.parent_id SET cc_owner = CONCAT('Gast-Vorname-', parent_id, ' Gast-Nachname-', parent_id) WHERE NOT(cc_owner IS NULL OR cc_owner = '') AND sales_order.customer_id IS NULL;
-        UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET shipping_name = CONCAT('Vorname-', customer_id, ' Nachname-', customer_id) WHERE sales_order.customer_id IS NOT NULL;
-        UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET shipping_name = CONCAT('Gast-Vorname-', order_id, ' Gast-Nachname-', order_id) WHERE sales_order.customer_id IS NULL;
+        UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET shipping_name = CONCAT('Vorname-', sales_order.customer_id, ' Nachname-', sales_order.customer_id) WHERE sales_order.customer_id IS NOT NULL;
+        UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET shipping_name = CONCAT('Gast-Vorname-', sales_shipment_grid.order_id, ' Gast-Nachname-', sales_shipment_grid.order_id) WHERE sales_order.customer_id IS NULL;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_shipment_grid' AND COLUMN_NAME = 'billing_name') THEN
+            UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET billing_name = CONCAT('Vorname-', sales_order.customer_id, ' Nachname-', sales_order.customer_id) WHERE sales_order.customer_id IS NOT NULL;
+            UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET billing_name = CONCAT('Gast-Vorname-', sales_shipment_grid.order_id, ' Gast-Nachname-', sales_shipment_grid.order_id) WHERE sales_order.customer_id IS NULL;
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_shipment_grid' AND COLUMN_NAME = 'customer_name') THEN
+            UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET customer_name = CONCAT('Vorname-', sales_order.customer_id, ' Nachname-', sales_order.customer_id) WHERE sales_order.customer_id IS NOT NULL;
+            UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET customer_name = CONCAT('Gast-Vorname-', sales_shipment_grid.order_id, ' Gast-Nachname-', sales_shipment_grid.order_id) WHERE sales_order.customer_id IS NULL;
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_shipment_grid' AND COLUMN_NAME = 'customer_email') THEN
+            UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET sales_shipment_grid.customer_email = CONCAT('kunde-', sales_order.customer_id, '@localhost.local') WHERE sales_order.customer_id IS NOT NULL;
+            UPDATE sales_shipment_grid JOIN sales_order ON sales_order.entity_id = sales_shipment_grid.order_id SET sales_shipment_grid.customer_email = CONCAT('gast-', sales_shipment_grid.order_id, '@localhost.local') WHERE sales_order.customer_id IS NULL;
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_shipment_grid' AND COLUMN_NAME = 'billing_address') THEN
+            UPDATE sales_shipment_grid SET billing_address = 'Unterm Markt 2 07743 Jena';
+        END IF;
+        IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_shipment_grid' AND COLUMN_NAME = 'shipping_address') THEN
+            UPDATE sales_shipment_grid SET shipping_address = 'Unterm Markt 2 07743 Jena';
+        END IF;
         -- dob
         UPDATE sales_order SET customer_dob = '1990-04-08' WHERE NOT customer_dob IS NULL;
         -- gender
@@ -320,7 +380,37 @@ BEGIN
     END IF;
 
     -- ### payment data ###
-    -- Paypal
+    IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_order_payment') THEN
+        -- Paypal
+        UPDATE quote_payment
+        SET additional_information = reg_replace('"paypal_payer_email":".*"', '"paypal_payer_email":"payment@localhost.local"', additional_information)
+        WHERE payment_id IN (
+            SELECT payment_id FROM (
+                SELECT payment_id
+                FROM quote_payment
+                WHERE additional_information LIKE '%paypal_payer_email%' AND additional_information NOT LIKE '%payment@localhost.local%'
+            ) AS temp
+        );
+        -- Creditcard
+        UPDATE quote_payment
+        SET additional_information = reg_replace('"firstname":".*"', '"firstname":"Vorname"', additional_information)
+        WHERE payment_id IN (
+            SELECT payment_id FROM (
+                SELECT payment_id
+                FROM quote_payment
+                WHERE additional_information LIKE '%firstname%' AND additional_information NOT LIKE '%Vorname%'
+            ) AS temp
+        );
+        UPDATE quote_payment
+        SET additional_information = reg_replace('"lastname":".*"', '"lastname":"Nachname"', additional_information)
+        WHERE payment_id IN (
+            SELECT payment_id FROM (
+                SELECT payment_id
+                FROM quote_payment
+                WHERE additional_information LIKE '%lastname%' AND additional_information NOT LIKE '%Nachname%'
+            ) AS temp
+        );
+    END IF;
     IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_flat_order_payment') THEN
         UPDATE sales_flat_order_payment
         SET additional_information = reg_replace('s:18:"paypal_payer_email";s:[0-9]+:".*"', 's:18:"paypal_payer_email";s:23:"payment@localhost.local"', additional_information)
@@ -333,6 +423,7 @@ BEGIN
         );
     END IF;
     IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'sales_order_payment') THEN
+        -- Paypal
         UPDATE sales_order_payment
         SET additional_information = reg_replace('"paypal_payer_email":".*"', '"paypal_payer_email":"payment@localhost.local"', additional_information)
         WHERE entity_id IN (
@@ -342,12 +433,60 @@ BEGIN
                 WHERE additional_information LIKE '%paypal_payer_email%' AND additional_information NOT LIKE '%payment@localhost.local%'
             ) AS temp
         );
+        -- Creditcard
+        UPDATE sales_order_payment
+        SET additional_information = reg_replace('"firstname":".*"', '"firstname":"Vorname"', additional_information)
+        WHERE entity_id IN (
+            SELECT entity_id FROM (
+                SELECT entity_id
+                FROM sales_order_payment
+                WHERE additional_information LIKE '%firstname%' AND additional_information NOT LIKE '%Vorname%'
+            ) AS temp
+        );
+        UPDATE sales_order_payment
+        SET additional_information = reg_replace('"lastname":".*"', '"lastname":"Nachname"', additional_information)
+        WHERE entity_id IN (
+            SELECT entity_id FROM (
+                SELECT entity_id
+                FROM sales_order_payment
+                WHERE additional_information LIKE '%lastname%' AND additional_information NOT LIKE '%Nachname%'
+            ) AS temp
+        );
     END IF;
 
     -- Stripe
     IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'cryozonic_stripesubscriptions_customers') THEN
         UPDATE cryozonic_stripesubscriptions_customers SET customer_email = CONCAT('kunde-', customer_id, '@localhost.local') WHERE customer_id > 0;
         UPDATE cryozonic_stripesubscriptions_customers SET customer_email = CONCAT('gast-', id, '@localhost.local') WHERE customer_id > 0;
+    END IF;
+
+    -- Payone
+    IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'payone_protocol_api') THEN
+        UPDATE payone_protocol_api SET raw_request = 'a:0:{}';
+        UPDATE payone_protocol_api SET raw_response = 'a:0:{}';
+    END IF;
+    IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = databaseName AND TABLE_NAME = 'payone_protocol_transactionstatus') THEN
+        UPDATE payone_protocol_transactionstatus SET email = CONCAT('kunde-', customerid, '@localhost.local') WHERE customerid IS NOT NULL AND customerid <> '';
+        UPDATE payone_protocol_transactionstatus SET email = CONCAT('gast-', order_id, '@localhost.local') WHERE customerid IS NULL OR customerid = '';
+        UPDATE payone_protocol_transactionstatus SET firstname = CONCAT('Vorname-', customerid) WHERE customerid IS NOT NULL AND customerid <> '';
+        UPDATE payone_protocol_transactionstatus SET firstname = CONCAT('Gast-Vorname-', order_id) WHERE customerid IS NULL OR customerid = '';
+        UPDATE payone_protocol_transactionstatus SET lastname = CONCAT('Nachname-', customerid) WHERE customerid IS NOT NULL AND customerid <> '';
+        UPDATE payone_protocol_transactionstatus SET lastname = CONCAT('Gast-Nachname-', order_id) WHERE customerid IS NULL OR customerid = '';
+        UPDATE payone_protocol_transactionstatus SET company = 'Tofex UG' WHERE company IS NOT NULL AND company <> '';
+        UPDATE payone_protocol_transactionstatus SET street = 'Unterm Markt 2';
+        UPDATE payone_protocol_transactionstatus SET zip = '07743';
+        UPDATE payone_protocol_transactionstatus SET city = 'Jena';
+        UPDATE payone_protocol_transactionstatus SET country = 'DE';
+        UPDATE payone_protocol_transactionstatus SET shipping_firstname = CONCAT('Vorname-', customerid) WHERE customerid IS NOT NULL AND customerid <> '';
+        UPDATE payone_protocol_transactionstatus SET shipping_firstname = CONCAT('Gast-Vorname-', order_id) WHERE customerid IS NULL OR customerid = '';
+        UPDATE payone_protocol_transactionstatus SET shipping_lastname = CONCAT('Nachname-', customerid) WHERE customerid IS NOT NULL AND customerid <> '';
+        UPDATE payone_protocol_transactionstatus SET shipping_lastname = CONCAT('Gast-Nachname-', order_id) WHERE customerid IS NULL OR customerid = '';
+        UPDATE payone_protocol_transactionstatus SET shipping_company = 'Tofex UG' WHERE shipping_company IS NOT NULL AND company <> '';
+        UPDATE payone_protocol_transactionstatus SET shipping_street = 'Unterm Markt 2';
+        UPDATE payone_protocol_transactionstatus SET shipping_zip = '07743';
+        UPDATE payone_protocol_transactionstatus SET shipping_city = 'Jena';
+        UPDATE payone_protocol_transactionstatus SET shipping_country = 'DE';
+        UPDATE payone_protocol_transactionstatus SET raw_status = 'a:0:{}';
     END IF;
 
     -- ### Spielemax ###

@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -9,23 +10,18 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -o  Database host, default: localhost
-  -p  Database port, default: 3306
-  -u  Name of the database user
-  -s  Password of the database user
-  -b  Name of the database to import into
-  -i  Import file
-  -d  Path to temp directory, default: /tmp/mysql
-  -r  Remove import file after import, default: no
+  --help              Show this message
+  --databaseHost      Database host, default: localhost
+  --databasePort      Database port, default: 3306
+  --databaseUser      Name of the database user
+  --databasePassword  Password of the database user
+  --databaseName      Name of the database to import into
+  --importFile        Import file
+  --tempDir           Path to temp directory, default: /tmp/mysql
+  --removeFile        Remove import file after import, default: no
 
-Example: ${scriptName} -u magento -s magento -b magento -i import.sql
+Example: ${scriptName} -u magento -s magento -b magento --importFile import.sql
 EOF
-}
-
-trim()
-{
-  echo -n "$1" | xargs
 }
 
 databaseHost=
@@ -37,22 +33,11 @@ importFile=
 tempDir=
 removeFile=
 
-while getopts ho:p:u:s:b:t:v:i:d:r:? option; do
-  case "${option}" in
-    h) usage; exit 1;;
-    o) databaseHost=$(trim "$OPTARG");;
-    p) databasePort=$(trim "$OPTARG");;
-    u) databaseUser=$(trim "$OPTARG");;
-    s) databasePassword=$(trim "$OPTARG");;
-    b) databaseName=$(trim "$OPTARG");;
-    t) ;;
-    v) ;;
-    i) importFile=$(trim "$OPTARG");;
-    d) tempDir=$(trim "$OPTARG");;
-    r) removeFile=$(trim "$OPTARG");;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
 
 if [[ -z "${databaseHost}" ]]; then
   databaseHost="localhost"

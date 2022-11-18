@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -8,47 +9,62 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -n  Name of database to import to
+  --help              Show this message
+  --databaseHost      Host name of database, default: 35.198.181.44
+  --databasePort      Port of database, default: 3306
+  --databaseUser      User name of database, default: projekte
+  --databasePassword  Password of database, default: projekte
+  --databaseName      Name of database to anonymize
 
-Example: ${scriptName} -m dev -a -u
+Example: ${scriptName} --databaseName magento
 EOF
 }
 
-trim()
-{
-  echo -n "$1" | xargs
-}
-
+databaseHost=
+databasePort=
+databaseUser=
+databasePassword=
 databaseName=
 
-while getopts hn:u? option; do
-  case ${option} in
-    h) usage; exit 1;;
-    n) databaseName=$(trim "$OPTARG");;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
+
+if [[ -z "${databaseHost}" ]]; then
+  databaseHost="35.198.181.44"
+fi
+
+if [[ -z "${databasePort}" ]]; then
+  databasePort="3306"
+fi
+
+if [[ -z "${databaseUser}" ]]; then
+  databaseUser="projekte"
+fi
+
+if [[ -z "${databasePassword}" ]]; then
+  databasePassword="projekte"
+fi
 
 if [[ -z "${databaseName}" ]]; then
   echo "No database name defined!"
   exit 1
 fi
 
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-databaseHostName="35.198.181.44"
-databasePort="3306"
-databaseUserName="projekte"
-databasePassword="projekte"
-
 export MYSQL_PWD="${databasePassword}"
 
+if [[ $(mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" "${databaseName}" -s -N -e "SHOW PROCEDURE STATUS WHERE NAME = 'anonymizeMagento';" | wc -l) -eq 1 ]]; then
+  echo "Dropping stored procedure"
+  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" "${databaseName}" -e "DROP PROCEDURE anonymizeMagento;"
+fi
+
 echo "Adding stored procedure"
-mysql -h${databaseHostName} -P${databasePort:-3306} -u${databaseUserName} "${databaseName}" < "${currentPath}/anonymize.sql"
+mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" "${databaseName}" < "${currentPath}/anonymize.sql"
 
 echo "Calling stored procedure"
-mysql -h${databaseHostName} -P${databasePort:-3306} -u${databaseUserName} "${databaseName}" -e "CALL anonymizeMagento('${databaseName}');"
+mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" "${databaseName}" -e "CALL anonymizeMagento('${databaseName}');"
 
 echo "Dropping stored procedure"
-mysql -h${databaseHostName} -P${databasePort:-3306} -u${databaseUserName} "${databaseName}" -e "DROP PROCEDURE anonymizeMagento;"
+mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" "${databaseName}" -e "DROP PROCEDURE anonymizeMagento;"
