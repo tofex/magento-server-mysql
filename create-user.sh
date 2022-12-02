@@ -56,8 +56,16 @@ if [[ -z "${system}" ]]; then
   system="system"
 fi
 
+if [[ -z "${databaseRootUser}" ]] && [[ -f /opt/install/env.properties ]]; then
+  databaseRootUser=$(ini-parse "/opt/install/env.properties" "no" "mysql" "rootUser")
+fi
+
 if [[ -z "${databaseRootUser}" ]]; then
   databaseRootUser="root"
+fi
+
+if [[ -z "${databaseRootPassword}" ]] && [[ -f /opt/install/env.properties ]]; then
+  databaseRootPassword=$(ini-parse "/opt/install/env.properties" "no" "mysql" "rootPassword")
 fi
 
 if [[ -z "${databaseRootPassword}" ]]; then
