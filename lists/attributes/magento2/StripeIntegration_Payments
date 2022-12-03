@@ -2,4 +2,7 @@ catalog_product:stripe_sub_enabled
 catalog_product:stripe_sub_initial_fee
 catalog_product:stripe_sub_interval
 catalog_product:stripe_sub_interval_count
+catalog_product:stripe_sub_prorate_d
+catalog_product:stripe_sub_prorate_u
 catalog_product:stripe_sub_trial
+catalog_product:stripe_sub_ud

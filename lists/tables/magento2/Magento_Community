@@ -1,4 +1,5 @@
 admin_analytics_usage_version_log:live
+admin_adobe_ims_webapi:dev
 admin_passwords:dev
 admin_system_messages:live
 admin_user:dev
@@ -38,6 +39,7 @@ catalog_category_product_index_store*:dev
 catalog_category_product_index_store*_replica:dev
 catalog_category_product_index_tmp:live
 catalog_compare_item:test
+catalog_compare_list:test
 catalog_eav_attribute:dev
 catalog_product_attribute_cl:live
 catalog_product_bundle_option:dev
@@ -159,6 +161,7 @@ customer_entity_varchar:test
 customer_form_attribute:dev
 customer_grid_flat:test
 customer_group:dev
+customer_group_excluded_website:dev
 customer_log:live
 customer_visitor:live
 design_change:dev
@@ -233,6 +236,7 @@ inventory_source_stock_link:dev
 inventory_stock:dev
 inventory_stock_*:dev
 inventory_stock_sales_channel:dev
+jwt_auth_revoked:test
 klarna_core_order:test
 klarna_payments_quote:test
 layout_link:cms
@@ -240,6 +244,7 @@ layout_update:cms
 login_as_customer:test
 login_as_customer_assistance_allowed:test
 magento_login_as_customer_log:live
+magento_operation:live
 media_content_asset:dev
 media_gallery_asset:dev
 media_gallery_asset_keyword:dev
@@ -258,6 +263,7 @@ oauth_consumer:dev
 oauth_nonce:dev
 oauth_token:dev
 oauth_token_request_log:live
+pagebuilder_template:dev
 password_reset_request_event:live
 patch_list:dev
 paypal_billing_agreement:test

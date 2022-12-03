@@ -45,7 +45,6 @@ magento_invitation_status_history:test
 magento_invitation_track:test
 magento_logging_event:live
 magento_logging_event_changes:live
-magento_operation:live
 magento_reminder_rule:dev
 magento_reminder_rule_coupon:test
 magento_reminder_rule_log:live
