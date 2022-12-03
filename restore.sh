@@ -109,7 +109,7 @@ if [[ ! -f "${dumpFile}" ]]; then
 fi
 
 "${currentPath}/init.sh" -s "${system}"
-"${currentPath}/import.sh" -i "${dumpFile}" -t "${tempDir}"
+"${currentPath}/import.sh" --importFile "${dumpFile}" --tempDir "${tempDir}"
 
 if [[ "${remove}" == 1 ]]; then
   echo "Removing downloaded dump: ${dumpFile}"
