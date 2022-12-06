@@ -9,7 +9,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
-  -o  Database host, default: localhost
+  -o  Database host, default: 127.0.0.1
   -p  Database port, default: 3306
   -u  Name of the database user to create
   -s  Database password of the user to create
@@ -58,8 +58,8 @@ while getopts ho:p:u:s:b:t:v:r:w:g:c:? option; do
   esac
 done
 
-if [[ -z "${databaseHost}" ]]; then
-  databaseHost="localhost"
+if [[ -z "${databaseHost}" ]] || [[ "${databaseHost}" == "localhost" ]]; then
+  databaseHost="127.0.0.1"
 fi
 
 if [[ -z "${databasePort}" ]]; then

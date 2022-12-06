@@ -36,6 +36,10 @@ if [[ -z "${databaseHost}" ]]; then
   databaseHost="35.198.181.44"
 fi
 
+if [[ "${databaseHost}" == "localhost" ]]; then
+  databaseHost="127.0.0.1"
+fi
+
 if [[ -z "${databasePort}" ]]; then
   databasePort="3306"
 fi

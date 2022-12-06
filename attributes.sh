@@ -62,7 +62,7 @@ for server in "${serverList[@]}"; do
   if [[ -n "${database}" ]]; then
     serverType=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
     if [[ "${serverType}" == "local" ]]; then
-      databaseHost="localhost"
+      databaseHost="127.0.0.1"
       if [[ "${showOnlyModules}" == 0 ]]; then
         echo "--- Checking database tables on local server: ${server} ---"
       fi
@@ -79,6 +79,10 @@ done
 if [[ -z "${databaseHost}" ]]; then
   echo "No database settings found"
   exit 1
+fi
+
+if [[ "${databaseHost}" == "localhost" ]]; then
+  databaseHost="127.0.0.1"
 fi
 
 databasePort=$(ini-parse "${currentPath}/../env.properties" "yes" "${database}" "port")

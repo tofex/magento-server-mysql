@@ -11,7 +11,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   --help              Show this message
-  --databaseHost      Database host, default: localhost
+  --databaseHost      Database host, default: 127.0.0.1
   --databasePort      Database port, default: 3306
   --databaseUser      Name of the database user
   --databasePassword  Password of the database user
@@ -39,8 +39,8 @@ elif [[ -f /tmp/prepare-parameters.sh ]]; then
   source /tmp/prepare-parameters.sh
 fi
 
-if [[ -z "${databaseHost}" ]]; then
-  databaseHost="localhost"
+if [[ -z "${databaseHost}" ]] || [[ "${databaseHost}" == "localhost" ]]; then
+  databaseHost="127.0.0.1"
 fi
 
 if [[ -z "${databasePort}" ]]; then

@@ -89,7 +89,7 @@ for server in "${serverList[@]}"; do
   if [[ -n "${database}" ]]; then
     serverType=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
     if [[ "${serverType}" == "local" ]]; then
-      databaseHost="localhost"
+      databaseHost="127.0.0.1"
       echo "--- Dumping database on local server: ${server} ---"
     else
       databaseHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
@@ -102,6 +102,10 @@ done
 if [[ -z "${databaseHost}" ]]; then
   echo "No database settings found"
   exit 1
+fi
+
+if [[ "${databaseHost}" == "localhost" ]]; then
+  databaseHost="127.0.0.1"
 fi
 
 databasePort=$(ini-parse "${currentPath}/../env.properties" "yes" "${database}" "port")
@@ -136,7 +140,7 @@ for server in "${serverList[@]}"; do
   if [[ -n "${anonymizeDatabase}" ]]; then
     serverType=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
     if [[ "${serverType}" == "local" ]]; then
-      anonymizeDatabaseHost="localhost"
+      anonymizeDatabaseHost="127.0.0.1"
       echo "--- Anonymizing database on local server: ${server} ---"
     else
       anonymizeDatabaseHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
