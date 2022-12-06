@@ -1,0 +1,15 @@
+smtp_log:bcc
+smtp_log:body
+smtp_log:cc
+smtp_log:created_at
+smtp_log:encoding
+smtp_log:from
+smtp_log:log_id
+smtp_log:message
+smtp_log:reply_to
+smtp_log:sender
+smtp_log:status
+smtp_log:subject
+smtp_log:to
+smtp_log:type
+smtp_log:updated_at
