@@ -1,0 +1,6 @@
+pm_retailer_log:crdate
+pm_retailer_log:id
+pm_retailer_log:ip
+pm_retailer_log:lat
+pm_retailer_log:lng
+pm_retailer_log:zip

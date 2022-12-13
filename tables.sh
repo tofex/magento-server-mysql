@@ -123,25 +123,25 @@ fi
 
 cd "${currentPath}/lists/tables/magento${magentoVersion:0:1}"
 
-cmsList=( $(grep -roP "(.*):cms$" . | cut -c 3-) )
+cmsList=( $(grep -roE "(.*):cms$" . | cut -c 3-) )
 knownCmsTables=( )
 for cmsListEntry in "${cmsList[@]}"; do
   knownCmsTables+=( "${cmsListEntry}" )
 done
 
-devList=( $(grep -roP "(.*):dev$" . | cut -c 3-) )
+devList=( $(grep -roE "(.*):dev$" . | cut -c 3-) )
 knownDevTables=( )
 for devListEntry in "${devList[@]}"; do
   knownDevTables+=( "${devListEntry}" )
 done
 
-testList=( $(grep -roP "(.*):test$" . | cut -c 3-) )
+testList=( $(grep -roE "(.*):test$" . | cut -c 3-) )
 knownTestTables=( )
 for testListEntry in "${testList[@]}"; do
   knownTestTables+=( "${testListEntry}" )
 done
 
-liveList=( $(grep -roP "(.*):live$" . | cut -c 3-) )
+liveList=( $(grep -roE "(.*):live$" . | cut -c 3-) )
 knownLiveTables=( )
 for liveListEntry in "${liveList[@]}"; do
   knownLiveTables+=( "${liveListEntry}" )
@@ -157,22 +157,22 @@ if [[ "${useIgnoreList}" == 1 ]] && [[ -f "${currentPath}/../var/mysql/ignore.li
 fi
 
 if [[ "${useProjectList}" == 1 ]] && [[ -f "${currentPath}/../var/mysql/project.list" ]]; then
-  cmsList=( $(grep -oP "(.*):cms$" "${currentPath}/../var/mysql/project.list" | cat) )
+  cmsList=( $(grep -oE "(.*):cms$" "${currentPath}/../var/mysql/project.list" | cat) )
   for cmsListEntry in "${cmsList[@]}"; do
     knownCmsTables+=( "Project:${cmsListEntry}" )
   done
 
-  devList=( $(grep -oP "(.*):dev$" "${currentPath}/../var/mysql/project.list" | cat) )
+  devList=( $(grep -oE "(.*):dev$" "${currentPath}/../var/mysql/project.list" | cat) )
   for devListEntry in "${devList[@]}"; do
     knownDevTables+=( "Project:${devListEntry}" )
   done
 
-  testList=( $(grep -oP "(.*):test$" "${currentPath}/../var/mysql/project.list" | cat) )
+  testList=( $(grep -oE "(.*):test$" "${currentPath}/../var/mysql/project.list" | cat) )
   for testListEntry in "${testList[@]}"; do
     knownTestTables+=( "Project:${testListEntry}" )
   done
 
-  liveList=( $(grep -oP "(.*):live$" "${currentPath}/../var/mysql/project.list" | cat) )
+  liveList=( $(grep -oE "(.*):live$" "${currentPath}/../var/mysql/project.list" | cat) )
   for liveListEntry in "${liveList[@]}"; do
     knownLiveTables+=( "Project:${liveListEntry}" )
   done
@@ -360,7 +360,7 @@ if [[ -z "${exclude}" ]] && [[ -z "${include}" ]] && [[ "${#knownTables[@]}" -gt
       elif [[ "${table}" =~ ^sequence_shipment_[0-9]+ ]]; then
         continue
       else
-        module=$(grep -w -l -r "${table}:${column}" | cat)
+        module=$(grep -w -l -r '.' -e "${table}:${column}" | cat | cut -c 3-)
       fi
       if [[ -n "${module}" ]]; then
         if [[ "${showOnlyModules}" == 0 ]] && [[ "${showOnlyUnknownTables}" == 0 ]] && [[ "${showOnlyUnknownColumns}" == 0 ]] && [[ -z "${exclude}" ]] && [[ -z "${include}" ]]; then

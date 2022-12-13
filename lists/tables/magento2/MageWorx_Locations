@@ -1,0 +1,10 @@
+mageworx_location_entity:dev
+mageworx_location_entity_datetime:dev
+mageworx_location_entity_decimal:dev
+mageworx_location_entity_int:dev
+mageworx_location_entity_text:dev
+mageworx_location_entity_varchar:dev
+mageworx_location_list:dev
+mageworx_location_products_relation:dev
+mageworx_location_stores_relation:dev
+mageworx_location_working_hours:dev

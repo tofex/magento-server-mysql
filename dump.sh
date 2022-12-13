@@ -220,8 +220,13 @@ else
   echo "Exporting table headers"
   mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --add-drop-table --no-data --skip-triggers "${databaseName}" > "${dumpFile}"
   echo "Exporting table data"
-  # shellcheck disable=SC2086
-  mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --events --triggers ${ignore} "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
+  if [[ $(mysql -B -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" "${databaseName}" --disable-column-names -e "show events;" >/dev/null 2>&1 && echo "true" || echo "false") == "true" ]]; then
+    # shellcheck disable=SC2086
+    mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --events --triggers ${ignore} "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
+  else
+    # shellcheck disable=SC2086
+    mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --triggers ${ignore} "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
+  fi
 fi
 
 if [[ "${anonymize}" == "1" ]]; then
