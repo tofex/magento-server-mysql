@@ -117,7 +117,7 @@ fi
 export MYSQL_PWD="${databasePassword}"
 
 echo "Importing dump from file: ${tempDir}/import.sql"
-mysql "-h${databaseHost}" "-P${databasePort:-3306}" "-u${databaseUser}" --init-command="SET SESSION FOREIGN_KEY_CHECKS=0;" "${databaseName}" < "${tempDir}/import.sql"
+mysql "-h${databaseHost}" "-P${databasePort:-3306}" "-u${databaseUser}" --binary-mode --init-command="SET SESSION FOREIGN_KEY_CHECKS=0;" "${databaseName}" < "${tempDir}/import.sql"
 
 echo "Removing prepared import file at: ${tempDir}/import.sql"
 rm -rf "${tempDir}/import.sql"
