@@ -1,3 +1,8 @@
 ae_ec:ec_cookie_ga
 ae_ec:ec_id
 ae_ec:ec_order_id
+ae_ec:ec_order_type
+ae_ec:ec_placed_at
+ae_ec:ec_track
+ae_ec:ec_updated_at
+ae_ec:ec_user_agent

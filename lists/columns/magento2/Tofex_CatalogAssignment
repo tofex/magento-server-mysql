@@ -1,4 +1,5 @@
 catalog_assignment_condition:attribute_code
+catalog_assignment_condition:attribute_id
 catalog_assignment_condition:custom_attribute
 catalog_assignment_condition:id
 catalog_assignment_condition:operator

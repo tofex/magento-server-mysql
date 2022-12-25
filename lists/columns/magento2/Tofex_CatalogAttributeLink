@@ -6,3 +6,7 @@ catalog_attribute_link:link_value
 catalog_attribute_link:position
 catalog_attribute_link:updated_at
 catalog_attribute_link:value
+catalog_attribute_link_product:linked_product_id
+catalog_attribute_link_product:link_product_id
+catalog_attribute_link_product:product_id
+catalog_attribute_link_product:store_id
