@@ -133,38 +133,66 @@ if [ -z "${databaseName}" ]; then
   exit 1
 fi
 
-anonymizeDatabase=
-anonymizeDatabaseHost=
-for server in "${serverList[@]}"; do
-  anonymizeDatabase=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "databaseAnonymize")
-  if [[ -n "${anonymizeDatabase}" ]]; then
-    serverType=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
-    if [[ "${serverType}" == "local" ]]; then
-      anonymizeDatabaseHost="127.0.0.1"
-      echo "--- Anonymizing database on local server: ${server} ---"
-    else
-      anonymizeDatabaseHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
-      echo "--- Anonymizing database on remote server: ${server} ---"
+if [[ "${anonymize}" == 1 ]]; then
+  databaseAnonymize=
+  databaseAnonymizeHost=
+  for server in "${serverList[@]}"; do
+    databaseAnonymize=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "databaseAnonymize")
+    if [[ -n "${databaseAnonymize}" ]]; then
+      serverType=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
+      if [[ "${serverType}" == "local" ]]; then
+        databaseAnonymizeHost="127.0.0.1"
+        echo "--- Anonymizing database on local server: ${server} ---"
+      else
+        databaseAnonymizeHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
+        echo "--- Anonymizing database on remote server: ${server} ---"
+      fi
+      break
     fi
-    break
-  fi
-done
+  done
 
-anonymizeDatabasePort=
-anonymizeDatabaseUser=
-anonymizeDatabasePassword=
-anonymizeDatabaseName=
-anonymizeDatabaseReset="no"
-if [[ -n "${anonymizeDatabase}" ]]; then
-  anonymizeDatabasePort=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "port")
-  anonymizeDatabaseUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "user")
-  anonymizeDatabasePassword=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "password")
-  anonymizeDatabaseName=$(ini-parse "${currentPath}/../env.properties" "yes" "${anonymizeDatabase}" "name")
-  anonymizeDatabaseReset=$(ini-parse "${currentPath}/../env.properties" "no" "${anonymizeDatabase}" "reset")
+  if [[ -z "${databaseAnonymizeHost}" ]]; then
+    echo "No anonymize database settings found"
+    exit 1
+  fi
+
+  if [[ "${databaseAnonymizeHost}" == "localhost" ]]; then
+    databaseAnonymizeHost="127.0.0.1"
+  fi
+
+  databaseAnonymizePort=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseAnonymize}" "port")
+  databaseAnonymizeUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseAnonymize}" "user")
+  databaseAnonymizePassword=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseAnonymize}" "password")
+  databaseAnonymizeName=$(ini-parse "${currentPath}/../env.properties" "yes" "${databaseAnonymize}" "name")
+  databaseAnonymizeReset=$(ini-parse "${currentPath}/../env.properties" "no" "${databaseAnonymize}" "reset")
+
+  if [ -z "${databaseAnonymizePort}" ]; then
+    echo "No anonymize database port specified!"
+    exit 1
+  fi
+
+  if [ -z "${databaseAnonymizeUser}" ]; then
+    echo "No anonymize database user specified!"
+    exit 1
+  fi
+
+  if [ -z "${databaseAnonymizePassword}" ]; then
+    echo "No anonymize database password specified!"
+    exit 1
+  fi
+
+  if [ -z "${databaseAnonymizeName}" ]; then
+    echo "No anonymize database name specified!"
+    exit 1
+  fi
+
+  if [ -z "${databaseAnonymizeReset}" ]; then
+    databaseAnonymizeReset="no"
+  fi
 fi
 
 if [[ "${anonymize}" == 1 ]]; then
-  if [[ -z "${anonymizeDatabaseHost}" ]] || [[ "${anonymizeDatabaseHost}" == "35.198.181.44" ]]; then
+  if [[ -z "${databaseAnonymizeHost}" ]] || [[ "${databaseAnonymizeHost}" == "35.198.181.44" ]]; then
     echo "Please specify access token to SQL, followed by [ENTER]:"
     read -r accessToken
 
@@ -206,8 +234,9 @@ if [[ "${onlyTables}" == 1 ]]; then
   echo "Exporting ${#exportTables[@]} tables"
 
   export MYSQL_PWD="${databasePassword}"
+
   echo "Exporting tables"
-  mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --max_allowed_packet=2G "${databaseName}" "${exportTables[@]}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
+  mysqldump -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --max_allowed_packet=2G "${databaseName}" "${exportTables[@]}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
 else
   echo "Collecting tables to export without data"
   excludeTables=( $("${currentPath}/tables.sh" -i -p -e "${mode}") )
@@ -217,67 +246,47 @@ else
   ignore=${ignore:1}
 
   export MYSQL_PWD="${databasePassword}"
+
   echo "Exporting table headers"
-  mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --add-drop-table --no-data --skip-triggers "${databaseName}" > "${dumpFile}"
+  mysqldump -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --add-drop-table --no-data --skip-triggers "${databaseName}" > "${dumpFile}"
+
   echo "Exporting table data"
-  if [[ $(mysql -B -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" "${databaseName}" --disable-column-names -e "show events;" >/dev/null 2>&1 && echo "true" || echo "false") == "true" ]]; then
+  if [[ $(mysql -B -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" "${databaseName}" --disable-column-names -e "show events;" >/dev/null 2>&1 && echo "true" || echo "false") == "true" ]]; then
     # shellcheck disable=SC2086
-    mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --events --triggers ${ignore} "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
+    mysqldump -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --events --routines --triggers ${ignore} "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
   else
     # shellcheck disable=SC2086
-    mysqldump -h"${databaseHost}" -P"${databasePort:-3306}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --triggers ${ignore} "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
+    mysqldump -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --routines --triggers ${ignore} "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${dumpFile}"
   fi
 fi
 
 if [[ "${anonymize}" == "1" ]]; then
   echo "Anonymizing table data"
-  tempDatabaseName=$(printf '%s' "${databaseName}-${mode}-${date}" | md5sum | cut -d ' ' -f 1)
 
-  if [[ -n "${anonymizeDatabaseHost}" ]]; then
-    "${currentPath}/upload.sh" \
-      --mode "${mode}" \
-      --date "${date}" \
-      --databaseHost "${anonymizeDatabaseHost}" \
-      --databasePort "${anonymizeDatabasePort}" \
-      --databaseUser "${anonymizeDatabaseUser}" \
-      --databasePassword "${anonymizeDatabasePassword}" \
-      --databaseName "${anonymizeDatabaseName}" \
-      --reset "${anonymizeDatabaseReset}"
-  else
-    "${currentPath}/upload.sh" \
-      --mode "${mode}" \
-      --date "${date}" \
-      --databaseName "${tempDatabaseName}" \
-      --reset yes
-  fi
+  "${currentPath}/import/database.sh" \
+    --databaseHost "${databaseAnonymizeHost}" \
+    --databasePort "${databaseAnonymizePort}" \
+    --databaseUser "${databaseAnonymizeUser}" \
+    --databasePassword "${databaseAnonymizePassword}" \
+    --databaseName "${databaseAnonymizeName}" \
+    --importFile "${dumpFile}" \
+    --reset "${databaseAnonymizeReset}"
 
-  if [[ -n "${anonymizeDatabaseHost}" ]]; then
-    "${currentPath}/anonymize.sh" \
-      --databaseHost "${anonymizeDatabaseHost}" \
-      --databasePort "${anonymizeDatabasePort}" \
-      --databaseUser "${anonymizeDatabaseUser}" \
-      --databasePassword "${anonymizeDatabasePassword}" \
-      --databaseName "${anonymizeDatabaseName}"
-  else
-    "${currentPath}/anonymize.sh" \
-      --databaseName "${tempDatabaseName}"
-  fi
+  "${currentPath}/anonymize/database-anonymize.sh" \
+    --databaseAnonymizeHost "${databaseAnonymizeHost}" \
+    --databaseAnonymizePort "${databaseAnonymizePort}" \
+    --databaseAnonymizeUser "${databaseAnonymizeUser}" \
+    --databaseAnonymizePassword "${databaseAnonymizePassword}" \
+    --databaseAnonymizeName "${databaseAnonymizeName}"
 
-  if [[ -n "${anonymizeDatabaseHost}" ]]; then
-    "${currentPath}/download.sh" \
-      --dumpFile "${dumpFile}" \
-      --databaseHost "${anonymizeDatabaseHost}" \
-      --databasePort "${anonymizeDatabasePort}" \
-      --databaseUser "${anonymizeDatabaseUser}" \
-      --databasePassword "${anonymizeDatabasePassword}" \
-      --databaseName "${anonymizeDatabaseName}" \
-      --remove "${anonymizeDatabaseReset}"
-  else
-    "${currentPath}/download.sh" \
-      --dumpFile "${dumpFile}" \
-      --databaseName "${tempDatabaseName}" \
-      --remove yes
-  fi
+  "${currentPath}/export/database.sh" \
+    --databaseHost "${databaseAnonymizeHost}" \
+    --databasePort "${databaseAnonymizePort}" \
+    --databaseUser "${databaseAnonymizeUser}" \
+    --databasePassword "${databaseAnonymizePassword}" \
+    --databaseName "${databaseAnonymizeName}" \
+    --exportFile "${dumpFile}" \
+    --remove "${databaseAnonymizeReset}"
 fi
 
 cd "${dumpPath}"

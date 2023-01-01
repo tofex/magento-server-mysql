@@ -17,10 +17,11 @@ OPTIONS:
   --databasePassword  Password of the database user
   --databaseName      Name of the database to import into
   --importFile        Import file
+  --reset             Drop current database and re-create it (yes/no), default: no
   --tempDir           Path to temp directory, default: /tmp/mysql
   --removeFile        Remove import file after import, default: no
 
-Example: ${scriptName} -u magento -s magento -b magento --importFile import.sql
+Example: ${scriptName} --databaseUser magento --databasePassword magento --databaseName magento --importFile import.sql
 EOF
 }
 
@@ -30,6 +31,7 @@ databaseUser=
 databasePassword=
 databaseName=
 importFile=
+reset=
 tempDir=
 removeFile=
 
@@ -69,6 +71,10 @@ if [[ -z "${importFile}" ]]; then
   echo "No import file specified!"
   usage
   exit 1
+fi
+
+if [[ -z "${reset}" ]]; then
+  reset="no"
 fi
 
 if [[ -z "${tempDir}" ]]; then
@@ -116,8 +122,16 @@ fi
 
 export MYSQL_PWD="${databasePassword}"
 
+if [[ "${reset}" == "yes" ]]; then
+  echo "Dropping database: ${databaseName}"
+  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" -e "DROP DATABASE IF EXISTS \`${databaseName}\`;"
+
+  echo "Creating database: ${databaseName}"
+  mysql -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" -e "CREATE DATABASE \`${databaseName}\` CHARACTER SET utf8 COLLATE utf8_general_ci;";
+fi
+
 echo "Importing dump from file: ${tempDir}/import.sql"
-mysql "-h${databaseHost}" "-P${databasePort:-3306}" "-u${databaseUser}" --binary-mode --default-character-set=utf8 --max_allowed_packet=2G --init-command="SET SESSION FOREIGN_KEY_CHECKS=0;" "${databaseName}" < "${tempDir}/import.sql"
+mysql "-h${databaseHost}" "-P${databasePort}" "-u${databaseUser}" --binary-mode --default-character-set=utf8 --max_allowed_packet=2G --init-command="SET SESSION FOREIGN_KEY_CHECKS=0;" "${databaseName}" < "${tempDir}/import.sql"
 
 echo "Removing prepared import file at: ${tempDir}/import.sql"
 rm -rf "${tempDir}/import.sql"
