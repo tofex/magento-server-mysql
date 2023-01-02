@@ -27,11 +27,7 @@ onlyRecords=
 compress=
 remove=
 
-if [[ -f "${currentPath}/../core/prepare-parameters.sh" ]]; then
-  source "${currentPath}/../core/prepare-parameters.sh"
-elif [[ -f /tmp/prepare-parameters.sh ]]; then
-  source /tmp/prepare-parameters.sh
-fi
+source "${currentPath}/../core/prepare-parameters.sh"
 
 if [[ -z "${dumpFile}" ]]; then
   if [[ ! -f "${currentPath}/../env.properties" ]]; then
