@@ -12,6 +12,7 @@ usage: ${scriptName} options
 OPTIONS:
   --help        Show this message
   --importFile  Import file
+  --reset       Drop current database and re-create it (yes/no), default: no
   --tempDir     Path to temp directory, default: /tmp/mysql
   --removeFile  Remove import file after import, default: no
 
@@ -20,6 +21,7 @@ EOF
 }
 
 importFile=
+reset=
 tempDir=
 removeFile=
 
@@ -35,6 +37,10 @@ if [[ -z "${importFile}" ]]; then
   exit 1
 fi
 
+if [[ -z "${reset}" ]]; then
+  reset="no"
+fi
+
 if [[ -z "${tempDir}" ]]; then
   tempDir="/tmp/mysql"
 fi
@@ -45,5 +51,6 @@ fi
 
 "${currentPath}/../core/script/run.sh" "database:single" "${currentPath}/import/database.sh" \
   --importFile "file:${importFile}" \
+  --reset "${reset}" \
   --tempDir "${tempDir}" \
   --removeFile "${removeFile}"
