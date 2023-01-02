@@ -91,25 +91,42 @@ if [[ -z "${remove}" ]]; then
   remove="no"
 fi
 
+if [[ -f "${exportFile}" ]]; then
+  echo "Removing previous export file at: ${exportFile}"
+  rm -rf "${exportFile}"
+fi
+
+touch "${exportFile}"
+
 export MYSQL_PWD="${databasePassword}"
 
 if [[ "${onlyRecords}" == "no" ]]; then
-  echo "Exporting all table columns"
+  echo "Exporting all table columns to file: ${exportFile}"
   mysqldump -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --add-drop-table --no-data --skip-triggers "${databaseName}" > "${exportFile}"
 fi
 
 if [[ "${onlyColumns}" == "no" ]]; then
-  echo "Exporting all table records"
+  echo "Exporting all table records to file: ${exportFile}"
   # shellcheck disable=SC2086
   mysqldump -h"${databaseHost}" -P"${databasePort}" -u"${databaseUser}" --no-tablespaces --no-create-db --lock-tables=false --disable-keys --default-character-set=utf8 --skip-add-drop-table --no-create-info --max_allowed_packet=2G --events --routines --triggers "${databaseName}" | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | sed -e 's/DEFINER[ ]*=[^@]*@[^ ]*//' | sed -e '/^CREATE\sDATABASE/d' | sed -e '/^ALTER\sDATABASE/d' | sed -e 's/ROW_FORMAT=FIXED//g' >> "${exportFile}"
 fi
 
 if [[ "${compress}" == "yes" ]]; then
+  if [[ -f "${exportFile}.gz" ]]; then
+    echo "Removing previous compressed export file at: ${exportFile}.gz"
+    rm -rf "${exportFile}.gz"
+  fi
+
   exportFilePath=$(dirname "${exportFile}")
-  mkdir -p "${exportFilePath}"
+
+  if [[ ! -d "${exportFilePath}" ]]; then
+    echo "Creating directory at: ${exportFilePath}"
+    mkdir -p "${exportFilePath}"
+  fi
+
   cd "${exportFilePath}"
 
-  rm -rf "${exportFile}.gz"
+  echo "Creating compressed file at: ${exportFile}.gz"
   exportFileName=$(basename "${exportFile}")
   gzip "${exportFileName}"
 fi

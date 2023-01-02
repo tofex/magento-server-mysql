@@ -11,7 +11,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   --help              Show this message
-  --exportFile        File to export the data to
+  --exportFile        File to export the data to, default: var/mysql/dumps/<systemName>-<date>.sql
   --onlyColumns       Flag if only table columns are to be exported (yes/no), default: no
   --onlyRecords       Flag if only records are to be exported (yes/no), default: no
   --compress          Compress the export, default: yes
@@ -42,7 +42,7 @@ if [[ -z "${dumpFile}" ]]; then
   systemName=$(ini-parse "${currentPath}/../env.properties" "yes" "system" "name")
 
   date=$(date +%Y-%m-%d)
-  exportFile=${currentPath}/../var/mysql/dumps/${systemName}-${date}.sql
+  exportFile="${currentPath}/../var/mysql/dumps/${systemName}-${date}.sql"
 else
   exportFile=$(dirname "${dumpFile}")
 fi
