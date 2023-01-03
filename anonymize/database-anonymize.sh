@@ -10,14 +10,15 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  --help                       Show this message
-  --databaseAnonymizeHost      Database host, default: 127.0.0.1
-  --databaseAnonymizePort      Database port, default: 3306
-  --databaseAnonymizeUser      Name of the database user
-  --databaseAnonymizePassword  Password of the database user
-  --databaseAnonymizeName      Name of the database to import into
+  --help                        Show this message
+  --databaseAnonymizeHost       Database host, default: 127.0.0.1
+  --databaseAnonymizePort       Database port, default: 3306
+  --databaseAnonymizeUser       Name of the database user
+  --databaseAnonymizePassword   Password of the database user
+  --databaseAnonymizeName       Name of the database to import into
+  --anonymizeProcedureFileName  Name of the file which contains the procedure to anonymize data
 
-Example: ${scriptName} --databaseAnonymizeUser magento --databaseAnonymizePassword magento --databaseAnonymizeName magento
+Example: ${scriptName} --databaseAnonymizeUser magento --databaseAnonymizePassword magento --databaseAnonymizeName magento --anonymizeProcedureFileName anonymize.sql
 EOF
 }
 
@@ -26,6 +27,7 @@ databaseAnonymizePort=
 databaseAnonymizeUser=
 databaseAnonymizePassword=
 databaseAnonymizeName=
+anonymizeProcedureFileName=
 
 if [[ -f "${currentPath}/../../core/prepare-parameters.sh" ]]; then
   source "${currentPath}/../../core/prepare-parameters.sh"
@@ -59,6 +61,18 @@ if [[ -z "${databaseAnonymizeName}" ]]; then
   exit 1
 fi
 
+if [[ -z "${anonymizeProcedureFileName}" ]]; then
+  echo "No anonymize procedure file name specified!"
+  usage
+  exit 1
+fi
+
+if [[ ! -f "${anonymizeProcedureFileName}" ]]; then
+  echo "Anonymize procedure file name not found at: ${anonymizeProcedureFileName}"
+  usage
+  exit 1
+fi
+
 export MYSQL_PWD="${databaseAnonymizePassword}"
 
 if [[ $(mysql -h"${databaseAnonymizeHost}" -P"${databaseAnonymizePort}" -u"${databaseAnonymizeUser}" "${databaseAnonymizeName}" -s -N -e "SHOW PROCEDURE STATUS WHERE NAME = 'anonymizeMagento';" | wc -l) -eq 1 ]]; then
@@ -67,7 +81,7 @@ if [[ $(mysql -h"${databaseAnonymizeHost}" -P"${databaseAnonymizePort}" -u"${dat
 fi
 
 echo "Adding stored procedure"
-mysql -h"${databaseAnonymizeHost}" -P"${databaseAnonymizePort}" -u"${databaseAnonymizeUser}" "${databaseAnonymizeName}" < "${currentPath}/anonymize.sql"
+mysql -h"${databaseAnonymizeHost}" -P"${databaseAnonymizePort}" -u"${databaseAnonymizeUser}" "${databaseAnonymizeName}" < "${anonymizeProcedureFileName}"
 
 echo "Calling stored procedure"
 mysql -h"${databaseAnonymizeHost}" -P"${databaseAnonymizePort}" -u"${databaseAnonymizeUser}" "${databaseAnonymizeName}" -e "CALL anonymizeMagento('${databaseAnonymizeName}');"
