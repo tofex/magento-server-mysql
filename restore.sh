@@ -10,56 +10,37 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -s  System name, default: system
-  -d  Download file from Google storage
-  -a  Access token to Google storage (optional)
-  -m  Mode (dev/test/live)
-  -f  Use this file, when not downloading from storage (optional)
-  -t  Path to temp directory
-  -r  Remove after import (optional)
+  --help                Show this message
+  --download            Download file from Google storage
+  --mode                Mode (dev/test/live)
+  --dumpFile            Use this file, when not downloading from storage (optional)
+  --tempDir             Path to temp directory
+  --remove              Remove after import (optional)
+  --gpcAccessToken      By specifying a GPC access token, the dump will be downloaded from GPC
+  --pCloudUserName      By specifying a pCloud username name and password, the dump will be downloaded from pCloud
+  --pCloudUserPassword  By specifying a pCloud username name and password, the dump will be downloaded from pCloud
 
-Example: ${scriptName} -m dev -d -t /tmp
+Example: ${scriptName} --mode dev --download --tempDir /tmp
 EOF
 }
 
-trim()
-{
-  echo -n "$1" | xargs
-}
-
-system=
-accessToken=
 download=0
 mode=
 dumpFile=
 tempDir=
 remove=0
+gpcAccessToken=
+pCloudUserName=
+pCloudUserPassword=
 
-while getopts hs:da:m:f:t:r? option; do
-  case "${option}" in
-    h) usage; exit 1;;
-    s) system=$(trim "$OPTARG");;
-    d) download=1;;
-    a) accessToken=$(trim "$OPTARG");;
-    m) mode=$(trim "$OPTARG");;
-    f) dumpFile=$(trim "$OPTARG");;
-    t) tempDir=$(trim "$OPTARG");;
-    r) remove=1;;
-    ?) usage; exit 1;;
-  esac
-done
-
-if [[ -z "${system}" ]]; then
-  system="system"
-fi
+source "${currentPath}/../core/prepare-parameters.sh"
 
 if [[ -z "${mode}" ]] && [[ -z "${dumpFile}" ]]; then
   usage
   exit 1
 fi
 
-if [[ -z "${dumpFile}" ]] && [[ "${system}" == "system" ]] && [[ "${mode}" != "dev" ]] && [[ "${mode}" != "test" ]] && [[ "${mode}" != "live" ]]; then
+if [[ -z "${dumpFile}" ]] && [[ "${mode}" != "dev" ]] && [[ "${mode}" != "test" ]] && [[ "${mode}" != "live" ]]; then
   echo "Invalid mode"
   echo ""
   usage
@@ -73,10 +54,12 @@ fi
 echo "--- Restoring database ---"
 
 if [[ "${download}" == 1 ]]; then
-  if [[ -z "${accessToken}" ]]; then
-    "${currentPath}/download-dump.sh" -s "${system}" -m "${mode}"
+  if [[ -n "${gpcAccessToken}" ]]; then
+    "${currentPath}/download-dump.sh" --mode "${mode}" --gpcAccessToken "${gpcAccessToken}"
+  elif [[ -n "${gpcAccessToken}" ]]; then
+    "${currentPath}/download-dump.sh" --mode "${mode}" --pCloudUserName "${pCloudUserName}" --pCloudUserPassword "${pCloudUserPassword}"
   else
-    "${currentPath}/download-dump.sh" -s "${system}" -m "${mode}" -a "${accessToken}"
+    "${currentPath}/download-dump.sh" --mode "${mode}"
   fi
 fi
 
@@ -108,7 +91,7 @@ if [[ ! -f "${dumpFile}" ]]; then
   fi
 fi
 
-"${currentPath}/init.sh" -s "${system}"
+"${currentPath}/init.sh"
 "${currentPath}/import.sh" --importFile "${dumpFile}" --tempDir "${tempDir}"
 
 if [[ "${remove}" == 1 ]]; then

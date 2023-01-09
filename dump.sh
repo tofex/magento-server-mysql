@@ -10,7 +10,6 @@ usage: ${scriptName} options
 
 OPTIONS:
   --help         Show this message
-  --system       System name, default: system
   --mode         Mode (cms/dev/test/live)
   --onlyTables   Flag if mode tables only
   --anonymize    Anonymizing
@@ -22,12 +21,6 @@ Example: ${scriptName} --mode dev --upload --remove
 EOF
 }
 
-trim()
-{
-  echo -n "$1" | xargs
-}
-
-system=
 mode=
 onlyTables=0
 anonymize=0
@@ -35,15 +28,7 @@ upload=0
 remove=0
 skipUnknown=0
 
-if [[ -f "${currentPath}/../core/prepare-parameters.sh" ]]; then
-  source "${currentPath}/../core/prepare-parameters.sh"
-elif [[ -f /tmp/prepare-parameters.sh ]]; then
-  source /tmp/prepare-parameters.sh
-fi
-
-if [[ -z "${system}" ]]; then
-  system="system"
-fi
+source "${currentPath}/../core/prepare-parameters.sh"
 
 if [[ -z "${mode}" ]]; then
   usage
@@ -70,7 +55,7 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
   exit 1
 fi
 
-projectId=$(ini-parse "${currentPath}/../env.properties" "yes" "${system}" "projectId")
+projectId=$(ini-parse "${currentPath}/../env.properties" "yes" "system" "projectId")
 if [[ -z "${projectId}" ]]; then
   echo "No project id specified!"
   exit 1
@@ -296,7 +281,7 @@ gzip "$(basename "${dumpFile}")"
 
 if [[ "${upload}" == 1 ]]; then
   echo "Uploading created archive"
-  "${currentPath}/upload-dump.sh" --system "${system}" --mode "${mode}" --date "${date}"
+  "${currentPath}/upload-dump.sh" --mode "${mode}" --date "${date}"
 
   if [[ "${remove}" == 1 ]]; then
     echo "Removing created archive: ${dumpFile}.gz"
