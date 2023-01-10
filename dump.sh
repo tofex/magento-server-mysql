@@ -61,7 +61,7 @@ if [[ -z "${projectId}" ]]; then
   exit 1
 fi
 
-serverList=( $(ini-parse "${currentPath}/../env.properties" "yes" "${system}" "server") )
+serverList=( $(ini-parse "${currentPath}/../env.properties" "yes" "system" "server") )
 if [[ "${#serverList[@]}" -eq 0 ]]; then
   echo "No servers specified!"
   exit 1

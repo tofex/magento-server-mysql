@@ -16,7 +16,7 @@ OPTIONS:
   --dumpFile            Use this file, when not downloading from storage (optional)
   --tempDir             Path to temp directory
   --remove              Remove after import (optional)
-  --gpcAccessToken      By specifying a GPC access token, the dump will be downloaded from GPC
+  --gcpAccessToken      By specifying a GCP access token, the dump will be downloaded from GCP
   --pCloudUserName      By specifying a pCloud username name and password, the dump will be downloaded from pCloud
   --pCloudUserPassword  By specifying a pCloud username name and password, the dump will be downloaded from pCloud
 
@@ -29,7 +29,7 @@ mode=
 dumpFile=
 tempDir=
 remove=0
-gpcAccessToken=
+gcpAccessToken=
 pCloudUserName=
 pCloudUserPassword=
 
@@ -54,9 +54,9 @@ fi
 echo "--- Restoring database ---"
 
 if [[ "${download}" == 1 ]]; then
-  if [[ -n "${gpcAccessToken}" ]]; then
-    "${currentPath}/download-dump.sh" --mode "${mode}" --gpcAccessToken "${gpcAccessToken}"
-  elif [[ -n "${gpcAccessToken}" ]]; then
+  if [[ -n "${gcpAccessToken}" ]]; then
+    "${currentPath}/download-dump.sh" --mode "${mode}" --gcpAccessToken "${gcpAccessToken}"
+  elif [[ -n "${pCloudUserName}" ]] && [[ -n "${pCloudUserPassword}" ]]; then
     "${currentPath}/download-dump.sh" --mode "${mode}" --pCloudUserName "${pCloudUserName}" --pCloudUserPassword "${pCloudUserPassword}"
   else
     "${currentPath}/download-dump.sh" --mode "${mode}"
