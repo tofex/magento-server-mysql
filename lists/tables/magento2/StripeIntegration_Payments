@@ -10,3 +10,4 @@ stripe_sources:test
 stripe_subscriptions:test
 stripe_webhooks:dev
 stripe_webhook_events:test
+stripe_payment_elements:test

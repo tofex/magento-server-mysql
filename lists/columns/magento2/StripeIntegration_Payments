@@ -69,6 +69,7 @@ stripe_subscriptions:subscription_id
 stripe_webhooks:active
 stripe_webhooks:api_version
 stripe_webhooks:config_version
+stripe_webhooks:connect
 stripe_webhooks:created_at
 stripe_webhooks:enabled_events
 stripe_webhooks:id

@@ -1,8 +1,10 @@
 fooman_surcharge:creation_time
 fooman_surcharge:data_rule
 fooman_surcharge:description
+fooman_surcharge:explanation
 fooman_surcharge:id
 fooman_surcharge:is_active
+fooman_surcharge:sort_order
 fooman_surcharge:store_id
 fooman_surcharge:tax_class_id
 fooman_surcharge:tax_inclusive
