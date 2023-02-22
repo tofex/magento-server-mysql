@@ -17,7 +17,7 @@ OPTIONS:
   --pCloudUserName      By specifying a pCloud username name and password, the dump will be downloaded from pCloud
   --pCloudUserPassword  By specifying a pCloud username name and password, the dump will be downloaded from pCloud
 
-Example: ${scriptName} --mode dev
+Example: ${scriptName} --mode dev --date 2018-06-05
 EOF
 }
 
@@ -134,6 +134,14 @@ elif [[ "${storage}" == "pCloud" ]]; then
   fileUrl="https://eapi.pcloud.com/getfilelink?path=/${bucketName}/${downloadFileName}&getauth=1&logout=1&username=${pCloudUserName}&password=${pCloudUserPassword}"
   echo "Checking url: ${fileUrl}"
   fileUrlData=$(curl -s "${fileUrl}")
+  resultCode=$(echo "${fileUrlData}" | jq -r '.result //empty')
+
+  if [[ "${resultCode}" != 0 ]]; then
+    >&2 echo "Dump file not found or accessible!"
+    >&2 echo "${fileUrlData}" | jq -r '.error //empty'
+    exit 1
+  fi
+
   fileUrlHost=$(echo "${fileUrlData}" | jq -r '.hosts[]' | head -n 1)
   fileUrlPath=$(echo "${fileUrlData}" | jq -r '.path')
   fileUrl="https://${fileUrlHost}${fileUrlPath}"

@@ -11,7 +11,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   --help                Show this message
-  --download            Download file from Google storage
+  --download            Download file from storage
   --mode                Mode (dev/test/live)
   --dumpFile            Use this file, when not downloading from storage (optional)
   --tempDir             Path to temp directory
