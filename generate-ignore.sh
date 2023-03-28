@@ -7,7 +7,7 @@ if [[ ! -f ${currentPath}/../env.properties ]]; then
     exit 1
 fi
 
-mkdir -p "${currentPath}/../var/mysql/ignore.list"
+mkdir -p "${currentPath}/../var/mysql"
 
 echo "Writing all unknown tables into: ${currentPath}/../var/mysql/ignore.list"
 "${currentPath}/tables.sh" -p -u > "${currentPath}/../var/mysql/ignore.list"
