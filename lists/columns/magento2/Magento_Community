@@ -159,6 +159,7 @@ catalog_category_entity_decimal:value
 catalog_category_entity_decimal:value_id
 catalog_category_entity_int:attribute_id
 catalog_category_entity_int:entity_id
+catalog_category_entity_int:entity_type_id
 catalog_category_entity_int:store_id
 catalog_category_entity_int:value
 catalog_category_entity_int:value_id
@@ -273,6 +274,7 @@ catalog_product_category_cl:version_id
 catalog_product_entity:attribute_set_id
 catalog_product_entity:created_at
 catalog_product_entity:entity_id
+catalog_product_entity:entity_type_id
 catalog_product_entity:has_options
 catalog_product_entity:required_options
 catalog_product_entity:sku

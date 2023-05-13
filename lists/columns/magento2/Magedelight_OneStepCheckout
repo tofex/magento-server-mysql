@@ -1,0 +1,16 @@
+quote:base_mdosc_extra_fee
+quote:mdosc_extra_fee
+quote:mdosc_extra_fee_checked
+quote:mdosc_registration_token
+quote:md_osc_delivery_comment
+quote:md_osc_delivery_date
+quote:md_osc_delivery_time
+sales_creditmemo:base_mdosc_extra_fee
+sales_creditmemo:mdosc_extra_fee
+sales_invoice:base_mdosc_extra_fee
+sales_invoice:mdosc_extra_fee
+sales_order:base_mdosc_extra_fee
+sales_order:mdosc_extra_fee
+sales_order:md_osc_delivery_comment
+sales_order:md_osc_delivery_date
+sales_order:md_osc_delivery_time
