@@ -1,0 +1,7 @@
+client_computer_operation:cco_date
+client_computer_operation:cco_file
+client_computer_operation:cco_id
+client_computer_operation:cco_name
+client_computer_operation:cco_operation
+client_computer_operation:cco_param
+client_computer_operation:cco_result

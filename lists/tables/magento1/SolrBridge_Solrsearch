@@ -1,0 +1,9 @@
+solrbridge_search_index:dev
+solrbridge_search_url_rewrite:dev
+solrbridge_solrsearch_index_english:dev
+solrbridge_solrsearch_index_english_prod:dev
+solrbridge_solrsearch_index_german:dev
+solrbridge_solrsearch_index_german_prod:dev
+solrbridge_solrsearch_logs:live
+solrbridge_solrsearch_request:live
+solrbridge_synchronize_management:dev

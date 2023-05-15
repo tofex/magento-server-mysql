@@ -1,0 +1,6 @@
+datatrans_01:test
+datatranscw_alias_data:test
+datatranscw_customer_context:test
+datatranscw_external_checkout_context:test
+datatranscw_storage:test
+datatranscw_transaction:test

@@ -1,0 +1,7 @@
+magemonkey_api_debug:live
+magemonkey_async_orders:test
+magemonkey_async_subscribers:test
+magemonkey_bulksync_export:live
+magemonkey_bulksync_import:live
+magemonkey_ecommerce360:test
+magemonkey_last_order:test

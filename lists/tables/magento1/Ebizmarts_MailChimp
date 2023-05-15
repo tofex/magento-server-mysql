@@ -1,0 +1,4 @@
+mailchimp_ecommerce_sync_data:test
+mailchimp_errors:test
+mailchimp_sync_batches:test
+mailchimp_webhook_request:test

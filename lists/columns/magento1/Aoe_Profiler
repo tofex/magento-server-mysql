@@ -1,0 +1,8 @@
+aoe_profiler_run:created_at
+aoe_profiler_run:id
+aoe_profiler_run:route
+aoe_profiler_run:session_id
+aoe_profiler_run:stack_data
+aoe_profiler_run:total_memory
+aoe_profiler_run:total_time
+aoe_profiler_run:url
