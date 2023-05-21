@@ -1,0 +1,12 @@
+isa_pickingtool_comment:comment
+isa_pickingtool_comment:comment_author_id
+isa_pickingtool_comment:comment_created_at
+isa_pickingtool_comment:entity_id
+isa_pickingtool_comment:picking_list_id
+isa_pickingtool_list:created_at
+isa_pickingtool_list:created_by
+isa_pickingtool_list:entity_id
+isa_pickingtool_list:operator_id
+isa_pickingtool_list:sales_order_ids
+isa_pickingtool_list:updated_at
+isa_pickingtool_list:updated_by

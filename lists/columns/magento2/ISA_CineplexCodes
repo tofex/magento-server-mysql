@@ -1,0 +1,10 @@
+cin_coupon_codes:block_name
+cin_coupon_codes:block_number
+cin_coupon_codes:block_serial_number
+cin_coupon_codes:coupon_id
+cin_coupon_codes:order_item_id
+cin_coupon_codes:short_barcode
+cin_coupon_codes:source
+cin_coupon_codes:status
+cin_coupon_codes:valid_till
+cin_coupon_codes:value

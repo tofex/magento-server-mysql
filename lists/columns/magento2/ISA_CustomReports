@@ -1,0 +1,6 @@
+isa_customreports:created_at
+isa_customreports:customreport_id
+isa_customreports:report_fields
+isa_customreports:report_name
+isa_customreports:report_sql
+isa_customreports:updated_at
