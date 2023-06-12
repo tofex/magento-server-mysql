@@ -13,6 +13,7 @@ OPTIONS:
   --mode         Mode (cms/dev/test/live)
   --onlyTables   Flag if mode tables only
   --anonymize    Anonymizing
+  --noAnonymize  Prohibit anonymizing
   --upload       Upload file to Tofex server
   --remove       Remove after upload
   --skipUnknown  Skip check for unknown tables
@@ -24,6 +25,7 @@ EOF
 mode=
 onlyTables=0
 anonymize=0
+noAnonymize=0
 upload=0
 remove=0
 skipUnknown=0
@@ -41,8 +43,12 @@ if [[ "${mode}" != "cms" ]] && [[ "${mode}" != "dev" ]] && [[ "${mode}" != "test
 fi
 
 if [[ "${mode}" == "test" ]]; then
-  echo "Test mode forces anonymizing"
-  anonymize=1
+  if [[ "${noAnonymize}" == 0 ]]; then
+    echo "Test mode forces anonymizing"
+    anonymize=1
+  else
+    echo "Test mode prohibited from forcing anonymizing"
+  fi
 fi
 
 if [[ "${mode}" == "live" ]]; then
