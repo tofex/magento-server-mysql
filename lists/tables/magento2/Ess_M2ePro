@@ -54,6 +54,7 @@ m2epro_ebay_listing_product:dev
 m2epro_ebay_listing_product_action_processing:dev
 m2epro_ebay_listing_product_indexer_variation_parent:dev
 m2epro_ebay_listing_product_pickup_store:dev
+m2epro_ebay_listing_product_scheduled_stop_action:dev
 m2epro_ebay_listing_product_variation:dev
 m2epro_ebay_listing_product_variation_option:dev
 m2epro_ebay_marketplace:dev
@@ -83,6 +84,7 @@ m2epro_listing_other:dev
 m2epro_listing_product:dev
 m2epro_listing_product_instruction:dev
 m2epro_listing_product_scheduled_action:dev
+m2epro_listing_product_tag_relation:dev
 m2epro_listing_product_variation:dev
 m2epro_listing_product_variation_option:dev
 m2epro_lock_item:dev
@@ -106,6 +108,7 @@ m2epro_setup:dev
 m2epro_stop_queue:live
 m2epro_synchronization_log:live
 m2epro_system_log:live
+m2epro_tag:dev
 m2epro_template_description:dev
 m2epro_template_selling_format:dev
 m2epro_template_synchronization:dev
