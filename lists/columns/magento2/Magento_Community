@@ -1356,6 +1356,8 @@ importexport_importdata:behavior
 importexport_importdata:data
 importexport_importdata:entity
 importexport_importdata:id
+importexport_importdata:is_processed
+importexport_importdata:updated_at
 indexer_state:hash_config
 indexer_state:indexer_id
 indexer_state:state_id
